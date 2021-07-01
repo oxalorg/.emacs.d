@@ -4,7 +4,7 @@ I've been maintaining a [dotfiles repo](https://github.com/oxalorg/dotfiles) ove
 
 But recently I find myself spending more and more time in just emacs. This is a combination of 
 1. Being less interested in shiny new things
-2. More concious focus on improving my 80% (code stuff) rather than my 20% (everything else in the unixy world)
+2. More conscious focus on improving my 80% (code stuff) rather than my 20% (everything else in the unixy world)
 3. Effort to make my computing environment minimal
 
 ## Corgi
