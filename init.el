@@ -101,6 +101,10 @@
 (use-package evil-cleverparens)
 (use-package html-to-hiccup
   :load-path "~/projects/html-to-hiccup")
+(use-package magit-delta
+  :after (magit)
+  :config
+  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
 
 (with-eval-after-load 'evil-maps
   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
