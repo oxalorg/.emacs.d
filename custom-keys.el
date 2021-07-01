@@ -10,5 +10,5 @@
   ("f" "File commands"
    ("f" "Find file" projectile-find-file))
   ("g" "Git commands"
-   ("f" "Find file" projectile-find-file)))
+   ("g" "Git status" magit-status)))
  )
