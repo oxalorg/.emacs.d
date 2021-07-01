@@ -11,4 +11,8 @@
    ("f" "Find file" projectile-find-file))
   ("g" "Git commands"
    ("g" "Git status" magit-status)))
+
+ (normal|visual|insert
+  ("M-x" "meta-x" counsel-M-x))
  )
+
