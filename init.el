@@ -101,6 +101,9 @@
 (use-package evil-cleverparens)
 (use-package html-to-hiccup
   :load-path "~/projects/html-to-hiccup")
+(use-package git-link
+  :config
+  (setq git-link-open-in-browser t))
 (use-package magit-delta
   :after (magit)
   :config

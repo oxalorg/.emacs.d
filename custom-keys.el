@@ -10,6 +10,8 @@
   ("f" "File commands"
    ("f" "Find file" projectile-find-file))
   ("g" "Git commands"
+   ("r" "Git repo" git-link-homepage)
+   ("l" "Git repo" git-link)
    ("g" "Git status" magit-status)))
 
  (normal|visual|insert
