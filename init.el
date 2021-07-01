@@ -105,6 +105,17 @@
   :after (magit)
   :config
   (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
+(use-package diff-hl
+  :config
+  (evil-set-initial-state 'diff-hl-show-hunk-posframe--transient-mode 'motion)
+  (global-diff-hl-mode))
+
+(with-eval-after-load 'diff-hl
+  '(progn
+     ;; let diff-hl inline popup keymaps take priority over evil
+     (evil-make-overriding-map diff-hl-show-hunk--inline-popup-map 'normal)
+     ;; force update evil keymaps after diff-hl-mode loaded
+     (add-hook 'diff-hl-mode-hook #'evil-normalize-keymaps)))
 
 (with-eval-after-load 'evil-maps
   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
