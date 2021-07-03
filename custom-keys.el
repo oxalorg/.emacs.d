@@ -15,13 +15,12 @@
    ("d" "Eval defun at point" :eval/outer-sexp)
    ("D" "Eval defun at point to comment" :eval/outer-sexp-comment)
    ("f" "Eval list at point" :eval/list-at-point))
-  ("d" "Eval defun at point" :eval/outer-sexp))
- ("f" "File commands"
-  ("f" "Find file" projectile-find-file))
- ("g" "Git commands"
-  ("r" "Git repo" git-link-homepage)
-  ("l" "Git repo" git-link)
-  ("g" "Git status" magit-status)))
+  ("g" "Git commands"
+   ("r" "Git repo" git-link-homepage)
+   ("l" "Git repo" git-link)
+   ("g" "Git status" magit-status))
+  ("f" "File commands"
+   ("f" "Find file" projectile-find-file)))
 
  (normal|visual|insert
   ("M-x" "meta-x" counsel-M-x))
