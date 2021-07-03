@@ -70,6 +70,8 @@
       org-journal-date-format "%a, %Y-%m-%d"
       org-journal-file-format "%Y-%m-%d.org")
 
+(setq ivy-initial-inputs-alist nil)
+
 (set-frame-font "Iosevka 16")
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
