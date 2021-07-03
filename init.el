@@ -115,6 +115,9 @@
   (evil-set-initial-state 'diff-hl-show-hunk-posframe--transient-mode 'motion)
   (global-diff-hl-mode))
 
+(with-eval-after-load 'evil
+  (setq-default evil-symbol-word-search t))
+
 (with-eval-after-load 'diff-hl
   '(progn
      ;; let diff-hl inline popup keymaps take priority over evil
