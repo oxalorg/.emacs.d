@@ -68,7 +68,22 @@
       org-directory "~/org/"
       org-journal-file-type 'monthly
       org-journal-date-format "%a, %Y-%m-%d"
-      org-journal-file-format "%Y-%m-%d.org")
+      org-journal-file-format "%Y-%m-%d.org"
+      dired-recursive-copies (quote always) ; “always” means no asking
+      dired-recursive-deletes (quote top) ; “top” means ask once
+      dired-dwim-target t ; Copy from one dired dir to the next dired dir shown in a split window
+      )
+
+(defun custom-dired-mode-setup ()
+  "to be run as hook for `dired-mode'."
+  (dired-hide-details-mode 1))
+(add-hook 'dired-mode-hook 'custom-dired-mode-setup)
+
+(with-eval-after-load 'dired
+  (put 'dired-find-alternate-file 'disabled nil) ; disables warning
+  (evil-define-key '(normal) dired-mode-map
+    (kbd "RET") 'dired-find-alternate-file ; was dired-advertised-find-file
+    (kbd "^") (lambda () (interactive) (find-alternate-file "..")))) ; was dired-up-directory
 
 (setq ivy-initial-inputs-alist nil)
 
