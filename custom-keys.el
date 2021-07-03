@@ -5,6 +5,7 @@
   ("0" "Clever slurp fwd" evil-cp->)
   ("9" "Clever slurp backwd" evil-cp-<)
   ("a" "Insert at end of form" evil-cp-insert-at-end-of-form)
+  ("/" "Search in project" counsel-projectile-rg)
   ("e" "Evaluate expressions"
    ("d" "Eval defun at point" :eval/outer-sexp))
   ("f" "File commands"

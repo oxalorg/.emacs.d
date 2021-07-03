@@ -79,6 +79,7 @@
 (use-package yaml-mode)
 (use-package org)
 (use-package magit)
+(use-package counsel-projectile)
 (use-package cherry-blossom-theme
   :config
   (load-theme 'cherry-blossom t))
