@@ -93,7 +93,9 @@
 
 (use-package markdown-mode)
 (use-package yaml-mode)
-(use-package org)
+(use-package org
+  :config
+  (setq org-startup-indented t))
 (use-package magit)
 (use-package counsel-projectile)
 (use-package cherry-blossom-theme
@@ -165,6 +167,23 @@
    browse-url-generic-program  "/c/Windows/System32/cmd.exe"
    browse-url-generic-args     '("/c" "start")
    browse-url-browser-function #'browse-url-generic))
+
+(use-package org-tree-slide
+  :custom
+  (org-image-actual-width nil))
+
+(use-package org-superstar ; "prettier" bullets
+  :hook (org-mode . org-superstar-mode)
+  :config
+  ;; Make leading stars truly invisible, by rendering them as spaces!
+  (setq org-superstar-leading-bullet ?\s
+        org-superstar-leading-fallback ?\s
+        org-hide-leading-stars nil
+        org-superstar-todo-bullet-alist
+        '(("TODO" . 9744)
+          ("[ ]"  . 9744)
+          ("DONE" . 9745)
+          ("[X]"  . 9745))))
 
 (defun ox/cider-eval-defun-at-point-and-run-test ()
   (interactive)
