@@ -23,6 +23,8 @@
   ("f" "File commands"
    ("f" "Find file" projectile-find-file)))
 
+ ("s" "Avy jump sneak" evil-avy-goto-char-timer)
+
  (normal|visual|insert
   ("M-x" "meta-x" counsel-M-x))
  )
