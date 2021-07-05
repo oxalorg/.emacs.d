@@ -121,7 +121,8 @@
   :load-path "~/projects/html-to-hiccup")
 (use-package git-link
   :config
-  (setq git-link-open-in-browser t))
+  (setq git-link-open-in-browser t
+        git-link-use-commit t))
 (use-package magit-delta
   :after (magit)
   :config
