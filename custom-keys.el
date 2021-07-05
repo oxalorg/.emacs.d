@@ -8,6 +8,7 @@
   ("/" "Search in project" counsel-projectile-rg)
   ("e" "Evaluate expressions"
    ("e" "Eval form before cursor" :eval/last-sexp)
+   ("t" "Eval and run test" ox/cider-eval-defun-at-point-and-run-test)
    ("p" "Eval and pretty print" :eval/last-sexp-pprint)
    ("P" "Eval to comment" :eval/last-sexp-pprint-comment)
    ("n" "Eval ns form" :eval/ns-form)

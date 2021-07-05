@@ -164,3 +164,14 @@
    browse-url-generic-args     '("/c" "start")
    browse-url-browser-function #'browse-url-generic))
 
+(defun ox/cider-eval-defun-at-point-and-run-test ()
+  (interactive)
+  (cider-eval-defun-at-point)
+  (cider-test-run-test))
+
+(defun ox/cider-switch-to-repl-buffer-same-window-force ()
+  (interactive)
+  (let ((repl (cider-current-repl nil nil)))
+    (if repl
+        (switch-to-buffer repl)
+      (switch-to-buffer (cider-current-repl 'any 'ensure)))))
