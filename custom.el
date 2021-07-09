@@ -7,6 +7,16 @@
    '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default))
  '(safe-local-variable-values
    '((eval define-clojure-indent
+           (reg-cofx :defn)
+           (reg-event-db :defn)
+           (reg-event-fx :defn)
+           (reg-fx :defn)
+           (reg-sub :defn)
+           (reg-event-domain :defn)
+           (reg-block-event-fx :defn)
+           (reg-event-domain-fx :defn)
+           (this-as 0))
+     (eval define-clojure-indent
            (assoc 0)
            (ex-info 0))
      (eval progn
