@@ -91,7 +91,8 @@
 
 (setq ivy-initial-inputs-alist nil)
 
-(global-superword-mode t)
+;; (global-superword-mode t)
+(show-paren-mode 1)
 (set-frame-font "Iosevka 16")
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
