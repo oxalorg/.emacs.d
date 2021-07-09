@@ -137,6 +137,17 @@
   :config
   (evil-set-initial-state 'diff-hl-show-hunk-posframe--transient-mode 'motion)
   (global-diff-hl-mode))
+(use-package helpful
+  ;; a better *help* buffer
+  :commands helpful--read-symbol
+  :init
+  ;; Make `apropos' et co search more extensively. They're more useful this way.
+  (setq apropos-do-all t)
+  (global-set-key [remap describe-function] #'helpful-callable)
+  (global-set-key [remap describe-command]  #'helpful-command)
+  (global-set-key [remap describe-variable] #'helpful-variable)
+  (global-set-key [remap describe-key]      #'helpful-key)
+  (global-set-key [remap describe-symbol]   #'helpful-symbol))
 
 (with-eval-after-load 'evil
   (setq-default evil-symbol-word-search t))
