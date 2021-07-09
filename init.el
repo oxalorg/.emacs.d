@@ -150,6 +150,7 @@
   (global-set-key [remap describe-symbol]   #'helpful-symbol))
 
 (with-eval-after-load 'evil
+  (setq evil-insert-state-cursor '(bar "green"))
   (setq-default evil-symbol-word-search t))
 
 (with-eval-after-load 'diff-hl
