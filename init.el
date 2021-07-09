@@ -159,6 +159,8 @@
   (global-set-key [remap describe-symbol]   #'helpful-symbol))
 
 (with-eval-after-load 'evil
+  (fset 'evil-visual-update-x-selection 'ignore)
+  (setq evil-kill-on-visual-paste nil)
   (setq evil-insert-state-cursor '(bar "green"))
   (setq-default evil-symbol-word-search t))
 
