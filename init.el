@@ -124,6 +124,10 @@
     "[" nil
     "]" nil))
 (use-package zprint-mode)
+(use-package evil-escape
+  :config
+  (setq-default evil-escape-key-sequence "qp")
+  (evil-escape-mode))
 (use-package evil-cleverparens)
 (use-package evil-commentary
   :config
