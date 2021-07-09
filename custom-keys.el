@@ -6,6 +6,8 @@
   ("9" "Clever slurp backwd" evil-cp-<)
   ("a" "Insert at end of form" evil-cp-insert-at-end-of-form)
   ("/" "Search in project" counsel-projectile-rg)
+  ("t" "toggles"
+   ("t" "parens" ox/toggle-parens))
   ("e" "Evaluate expressions"
    ("e" "Eval form before cursor" :eval/last-sexp)
    ("t" "Eval and run test" ox/cider-eval-defun-at-point-and-run-test)
