@@ -40,17 +40,21 @@
 
 (add-to-list #'straight-recipe-repositories 'corgi-packages)
 
-(let ((straight-current-profile 'corgi))
-  (use-package corgi-defaults)
-  (use-package corgi-editor)
-  (use-package corgi-emacs-lisp)
-  (use-package corgi-commands)
-  (use-package corgi-clojure)
-  (use-package corgi-stateline)
-  (use-package corkey
-    :config
-    (corkey-mode 1)
-    (corkey/install-bindings '(corgi-keys custom-keys) '(corgi-signals custom-signals))))
+(defun ox/corkey-reload ()
+  (interactive)
+  (let ((straight-current-profile 'corgi))
+    (use-package corgi-defaults)
+    (use-package corgi-editor)
+    (use-package corgi-emacs-lisp)
+    (use-package corgi-commands)
+    (use-package corgi-clojure)
+    (use-package corgi-stateline)
+    (use-package corkey
+      :config
+      (corkey-mode 1)
+      (corkey/install-bindings '(corgi-keys custom-keys) '(corgi-signals custom-signals)))))
+
+(ox/corkey-reload)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Your own stuff goes here, we recommend these extra packages
