@@ -120,6 +120,9 @@
     "]" nil))
 (use-package zprint-mode)
 (use-package evil-cleverparens)
+(use-package evil-commentary
+  :config
+  (evil-commentary-mode))
 (use-package html-to-hiccup
   :load-path "~/projects/html-to-hiccup")
 (use-package git-link
@@ -136,7 +139,8 @@
   (global-diff-hl-mode))
 
 (with-eval-after-load 'evil
-  (setq-default evil-symbol-word-search t))
+  (setq-default evil-symbol-word-search t)
+  )
 
 (with-eval-after-load 'diff-hl
   '(progn
