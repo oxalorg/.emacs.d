@@ -258,3 +258,7 @@ mismatched parens are changed based on the left one."
         ("[" (ox/toggle-parens--replace "{}" start end))
         ("{" (ox/toggle-parens--replace "()" start end))))))
 
+(defun ox/refresh-projects-dir ()
+  (interactive)
+  (projectile-discover-projects-in-directory "~/projects"))
+
