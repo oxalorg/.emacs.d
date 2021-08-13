@@ -98,6 +98,7 @@
 (set-frame-font "Iosevka 16")
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
+(use-package dired-subtree)
 (use-package markdown-mode)
 (use-package yaml-mode)
 (use-package org
