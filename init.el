@@ -105,10 +105,25 @@
   :config
   (setq org-startup-indented t))
 (use-package magit)
-(use-package counsel-projectile)
-(use-package cherry-blossom-theme
+(use-package counsel-projectile
+  :init
+  (setq projectile-indexing-method 'hybrid)
+  ;; (setq projectile-sort-order 'recently-active)
+  (setq projectile-sort-order 'recentf))
+;; (use-package cherry-blossom-theme
+;;   :config
+;;   (load-theme 'cherry-blossom t))
+(use-package doom-themes
+  :ensure t
   :config
-  (load-theme 'cherry-blossom t))
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-outrun-electric t)
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 (use-package vundo
   :straight (vundo :type git :host github :repo "casouri/vundo"))
 (use-package evil-cleverparens
@@ -125,7 +140,8 @@
     "{" nil
     "}" nil
     "[" nil
-    "]" nil))
+    "]" nil
+    (kbd "<tab>") 'evil-jump-item))
 (use-package zprint-mode)
 (use-package evil-escape
   :config
@@ -277,3 +293,79 @@ mismatched parens are changed based on the left one."
   (interactive)
   (projectile-discover-projects-in-directory "~/projects"))
 
+(defun ox/open-round-insert ()
+  (interactive)
+  (paredit-open-round)
+  (evil-insert 0))
+
+(define-key ivy-minibuffer-map (kbd "<tab>") 'ivy-next-line)
+(define-key ivy-minibuffer-map (kbd "<backtab>") 'ivy-previous-line)
+
+(setq save-interprogram-paste-before-kill t)
+
+(defun counsel-helpful-keymap-describe ()
+  "select keymap with ivy, display help with helpful"
+  (interactive)
+  (ivy-read "describe keymap: " (let (cands)
+				  (mapatoms
+				   (lambda (x)
+				     (and (boundp x) (keymapp (symbol-value x))
+					  (push (symbol-name x) cands))))
+				  cands)
+	    :require-match t
+	    :history 'counsel-describe-keymap-history
+	    :sort t
+	    :preselect (ivy-thing-at-point)
+	    :keymap counsel-describe-map
+	    :caller 'counsel-helpful-keymap-describe
+	    :action (lambda (map-name)
+		      (helpful-variable (intern map-name))) ))
+
+(defun ox/cider-switch-to-repl-buffer-same-window-force ()
+  (interactive)
+  (let ((repl (cider-current-repl nil nil)))
+    (if repl
+        (switch-to-buffer repl)
+      (switch-to-buffer (cider-current-repl 'any 'ensure)))))
+
+(evil-define-key '(normal visual) cider-repl-mode-map
+  (kbd "SPC,") 'evil-switch-to-windows-last-buffer)
+
+(use-package elpy
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable)
+  :config
+  (setq elpy-rpc-python-command "python3")
+  (setq python-shell-interpreter "python3")
+  ;;python-shell-interpreter-args "-i")
+  )
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (add-hook 'evil-org-mode-hook #'evil-normalize-keymaps)
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  )
+
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory (file-truename "~/org"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  (org-roam-setup)
+  ;; If using org-roam-protocol
+  ;;(require 'org-roam-protocol)
+  )
