@@ -178,6 +178,16 @@
   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
   (define-key evil-motion-state-map (kbd ";") 'evil-ex))
 
+;; web-mode
+(defun web-mode-init-hook ()
+  "Hooks for Web mode.  Adjust indent."
+  (setq web-mode-markup-indent-offset 4))
+
+(use-package web-mode
+  :config
+  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+  (add-hook 'web-mode-hook  'web-mode-init-hook))
+
 (defun html-to-hiccup-buffer ()
   (interactive)
   ;; (evil-visual-select (point-min) (point-max))
