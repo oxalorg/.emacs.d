@@ -338,16 +338,16 @@ mismatched parens are changed based on the left one."
 (evil-define-key '(normal visual) cider-repl-mode-map
   (kbd "SPC,") 'evil-switch-to-windows-last-buffer)
 
-(use-package elpy
-  :ensure t
-  :defer t
-  :init
-  (advice-add 'python-mode :before 'elpy-enable)
-  :config
-  (setq elpy-rpc-python-command "python3")
-  (setq python-shell-interpreter "python3")
-  ;;python-shell-interpreter-args "-i")
-  )
+;; (use-package elpy
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (advice-add 'python-mode :before 'elpy-enable)
+;;   :config
+;;   (setq elpy-rpc-python-command "python3")
+;;   (setq python-shell-interpreter "python3")
+;;   ;;python-shell-interpreter-args "-i")
+;;   )
 
 (use-package evil-org
   :ensure t
