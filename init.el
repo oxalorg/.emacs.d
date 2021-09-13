@@ -223,6 +223,14 @@
    browse-url-generic-args     '("/c" "start")
    browse-url-browser-function #'browse-url-generic))
 
+(use-package paren
+  ;; highlight matching delimiters
+  :config
+  (setq show-paren-delay 0.1
+        show-paren-highlight-openparen t
+        show-paren-when-point-inside-paren t
+        show-paren-when-point-in-periphery t))
+
 (use-package org-tree-slide
   :custom
   (org-image-actual-width nil))
@@ -251,7 +259,6 @@
     (if repl
         (switch-to-buffer repl)
       (switch-to-buffer (cider-current-repl 'any 'ensure)))))
-
 
 (defun ox/toggle-parens--replace (pair start end)
   "Replace parens with a new PAIR at START and END in current buffer.
@@ -369,3 +376,6 @@ mismatched parens are changed based on the left one."
   ;; If using org-roam-protocol
   ;;(require 'org-roam-protocol)
   )
+
+(use-package forge
+  :after magit)
