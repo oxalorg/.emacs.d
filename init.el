@@ -76,6 +76,8 @@
       dired-recursive-copies (quote always) ; “always” means no asking
       dired-recursive-deletes (quote top) ; “top” means ask once
       dired-dwim-target t ; Copy from one dired dir to the next dired dir shown in a split window
+      split-height-threshold nil
+      split-width-threshold 0
       )
 
 (defun custom-dired-mode-setup ()
@@ -95,7 +97,7 @@
 (and window-system (server-start))
 (desktop-save-mode 1)
 (show-paren-mode 1)
-(set-frame-font "Iosevka 16")
+(set-frame-font "Iosevka 20")
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 (use-package dired-subtree)
