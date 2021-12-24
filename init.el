@@ -112,6 +112,9 @@
   :config
   (setq org-startup-indented t))
 (use-package magit)
+(use-package projectile
+  :config
+  (setq projectile-project-search-path '("~/projects/")))
 (use-package counsel-projectile
   :init
   (setq projectile-indexing-method 'hybrid)
@@ -307,7 +310,8 @@ mismatched parens are changed based on the left one."
 
 (defun ox/refresh-projects-dir ()
   (interactive)
-  (projectile-discover-projects-in-directory "~/projects"))
+  ;; (projectile-discover-projects-in-directory "~/projects")
+  (projectile-discover-projects-in-search-path))
 
 (defun ox/open-round-insert ()
   (interactive)
