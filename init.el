@@ -369,3 +369,10 @@ mismatched parens are changed based on the left one."
 
 (use-package forge
   :after magit)
+
+;; I use parens so much that it makes sense to make them easier to type
+(evil-define-key 'insert 'global
+  (kbd "9") (lambda () (interactive) (insert "("))
+  (kbd "0") (lambda () (interactive) (insert ")"))
+  (kbd "(") (lambda () (interactive) (insert "9"))
+  (kbd ")") (lambda () (interactive) (insert "0")))
