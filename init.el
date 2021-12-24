@@ -40,25 +40,30 @@
 
 (add-to-list #'straight-recipe-repositories 'corgi-packages)
 
+(let ((straight-current-profile 'corgi))
+  (use-package corgi-defaults)
+  (use-package corgi-editor)
+  (use-package corgi-emacs-lisp)
+  (use-package corgi-commands)
+  (use-package corgi-clojure)
+  (use-package corgi-stateline))
+
 (defun ox/corkey-reload ()
   (interactive)
   (let ((straight-current-profile 'corgi))
-    (use-package corgi-defaults)
-    (use-package corgi-editor)
-    (use-package corgi-emacs-lisp)
-    (use-package corgi-commands)
-    (use-package corgi-clojure)
-    (use-package corgi-stateline)
     (use-package corkey
       :config
       (corkey-mode 1)
-      (corkey/install-bindings '(corgi-keys custom-keys) '(corgi-signals custom-signals)))))
+      (corkey/install-bindings '(custom-keys) '(corgi-signals custom-signals)))))
 
 (ox/corkey-reload)
 
+(defun ox/open-custom-keys ()
+  (interactive)
+  (find-file (expand-file-name "custom-keys.el" user-emacs-directory)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Your own stuff goes here, we recommend these extra packages
-
 
 (setq user-full-name "Mitesh Shah"
       user-mail-address "mitesh@miteshshah.com"
