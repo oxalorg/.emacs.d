@@ -20,51 +20,9 @@
   ("M-[ 1 ~" "Home key" beginning-of-line)
   ("M-[ 4 ~" "End key" end-of-line)
   ("<select>" "Home key" end-of-line))
-
- (normal|visual
-  ("g" "g commands"
-   ("c" "comment region" evil-commentary))
-  ("SPC" "Global leader"
-   ("o" "other window" other-window)
-   ("RET" "resume last sess" ivy-resume)
-   ("SPC" "Switch buffer" ivy-switch-buffer)
-   ("." "Find file" :file/open)
-   ("r" "(w)rap"
-    ("r" "open" ox/open-round-insert)
-    ("w" "wrap" paredit-wrap-round))
-   ("0" "Clever slurp fwd" evil-cp->)
-   ("9" "Clever slurp backwd" evil-cp-<)
-   ("a" "Insert at end of form" evil-cp-insert-at-end-of-form)
-   ("/" "Search in project" counsel-projectile-rg)
-   ("y" "Yank"
-    ("p" "pop" counsel-yank-pop))
-   ("t" "toggles"
-    ("t" "parens" ox/toggle-parens))
-   ("e" "Evaluate expressions"
-    ("e" "Eval form before cursor" :eval/last-sexp)
-    ("t" "Eval and run test" ox/cider-eval-defun-at-point-and-run-test)
-    ("p" "Eval and pretty print" :eval/last-sexp-pprint)
-    ("P" "Eval to comment" :eval/last-sexp-pprint-comment)
-    ("n" "Eval ns form" :eval/ns-form)
-    ("i" "Interrupt eval" :eval/interrupt)
-    ("d" "Eval defun at point" :eval/outer-sexp)
-    ("D" "Eval defun at point to comment" :eval/outer-sexp-comment)
-    ("f" "Eval list at point" :eval/list-at-point))
-   ("g" "Git commands"
-    ("r" "Git repo" git-link-homepage)
-    ("l" "Git repo" git-link)
-    ("g" "Git status" magit-status))
-   ("`" "Switch to repl in same window" ox/cider-switch-to-repl-buffer-same-window-force)
-   ("f" "File commands"
-    ("f" "Find file" projectile-find-file)))
-
-  ("s" "Avy jump sneak" evil-avy-goto-char-timer)
-
-  ("," "Local leader"
-   ("," "Switch to repl in same window" ox/cider-switch-to-repl-buffer-same-window-force))
-  (normal|visual|insert
-   ("M-x" "meta-x" counsel-M-x))
-  )
+ 
+ (normal|visual|insert
+  ("M-x" "meta-x" counsel-M-x))
 
  (normal|visual
   ("<backspace>" "Switch to previous buffer" corgi/switch-to-previous-buffer)
@@ -93,8 +51,12 @@
   ("<M-up>" "Expand region" er/expand-region)
   ("<M-down>" "Expand region" er/contract-region)
 
-  ("gc" "Comment region" comment-region)
+  ;; ("gc" "Comment region" comment-region)
   ("gC" "Uncomment region" uncomment-region)
+  ("g" "g commands"
+   ("c" "comment region" evil-commentary))
+
+  ("s" "Avy jump sneak" evil-avy-goto-char-timer)
 
   ("C-x" ("C-e" "Eval form before cursor" :eval/last-sexp))
 
@@ -108,7 +70,8 @@
     ("w" "Toggle read-only" read-only-mode))
 
    ("f" "File commands"
-    ("f" "Find file" :file/open)
+    ("f" "Find file" projectile-find-file)
+    ;; ("f" "Find file" :file/open)
     ("s" "Save file" :file/save)
     ("S" "Save all" :file/save-all)
     ("r" "Recently opened files" :file/open-recent)
@@ -129,7 +92,10 @@
     ("s" "Search in project" :project/incremental-search))
 
    ("g" "Git"
-    ("s" "Magit Status" magit-status))
+    ("s" "Magit Status" magit-status)
+    ("r" "Git repo home" git-link-homepage)
+    ("l" "Git repo link" git-link)
+    ("g" "Git status" magit-status))
 
    ("h" "Help"
     ("d" "Describe"
@@ -153,19 +119,45 @@
     ("/" "Split window right" split-window-right)
     ("-" "Split window below" split-window-below)
     ("o" "Go to other window" other-window)
+    ("w" "Go to other window" other-window)
     ("d" "Delete window" delete-window))
 
    ("t" "Toggle modes"
     ("a" "Toggle aggressive indent mode" aggressive-indent-mode)
     ("l" "Toggle line numbers" linum-mode)
     ("q" "Toggle debug on quit" toggle-debug-on-quit)
-    ("e" "Toggle debug on error" toggle-debug-on-error))
+    ("e" "Toggle debug on error" toggle-debug-on-error)
+    ("t" "parens" ox/toggle-parens))
 
    ("x" "Text editing"
     ("t" "Transpose sexps" transpose-sexps)
     ("s" "Splice backwards" sp-splice-sexp-killing-backward))
 
-   ("SPC" "Execute command (M-x)" :command/execute)
+   ("r" "(w)rap"
+    ("r" "open" ox/open-round-insert)
+    ("w" "wrap" paredit-wrap-round))
+
+   ("y" "Yank"
+    ("p" "pop" counsel-yank-pop))
+
+   ("e" "Evaluate expressions"
+    ("e" "Eval form before cursor" :eval/last-sexp)
+    ("t" "Eval and run test" ox/cider-eval-defun-at-point-and-run-test)
+    ("p" "Eval and pretty print" :eval/last-sexp-pprint)
+    ("P" "Eval to comment" :eval/last-sexp-pprint-comment)
+    ("n" "Eval ns form" :eval/ns-form)
+    ("i" "Interrupt eval" :eval/interrupt)
+    ("d" "Eval defun at point" :eval/outer-sexp)
+    ("D" "Eval defun at point to comment" :eval/outer-sexp-comment)
+    ("f" "Eval list at point" :eval/list-at-point))
+
+   ("`" "Switch to repl in same window" ox/cider-switch-to-repl-buffer-same-window-force)
+   ("a" "Insert at end of form" evil-cp-insert-at-end-of-form)
+   ("/" "Search in project" counsel-projectile-rg)
+   ("RET" "resume last sess" ivy-resume)
+   ("." "Find file" :file/open)
+   ("o" "other window" other-window)
+   ("SPC" "Switch buffer" ivy-switch-buffer)
    ("u" "Universal prefix" universal-argument)
    ("TAB" "Switch to previous buffer" corgi/switch-to-previous-buffer)
    ("1" "Select window 1" winum-select-window-1)
@@ -176,10 +168,11 @@
    ("6" "Select window 6" winum-select-window-6)
    ("7" "Select window 7" winum-select-window-7)
    ("8" "Select window 8" winum-select-window-8)
-   ("9" "Select window 9" winum-select-window-9)
-   ("0" "Select window 10" winum-select-window-10))
+   ("9" "Clever slurp backwd" evil-cp-<)
+   ("0" "Clever slurp fwd" evil-cp->))
 
   ("," "Project specific leader key"
+   ("," "Switch to repl in same window" ox/cider-switch-to-repl-buffer-same-window-force)
 
    ("e" "Evaluate expressions"
     ("b" "Eval buffer" :eval/buffer)
@@ -234,5 +227,3 @@
 
    ("," "Eval from registry and pprint" :eval/registry-pprint)
    ("<RET>" "Eval outer sexp" :eval/outer-sexp))))
-
-
