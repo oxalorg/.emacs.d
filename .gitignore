@@ -7,3 +7,7 @@
 /backups/
 /auto-save-list/
 /smex-items
+/.emacs.desktop
+/.emacs.desktop.lock
+/eshell/
+/forge-database.sqlite
