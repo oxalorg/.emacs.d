@@ -120,6 +120,8 @@
     ("-" "Split window below" split-window-below)
     ("o" "Go to other window" other-window)
     ("w" "Go to other window" other-window)
+    ("r" "Rotate / swap windows" window-swap-states)
+    ("s" "Rotate / swap windows" window-swap-states)
     ("d" "Delete window" delete-window))
 
    ("t" "Toggle modes"
