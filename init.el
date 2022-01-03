@@ -82,7 +82,7 @@
       dired-recursive-deletes (quote top) ; “top” means ask once
       dired-dwim-target t ; Copy from one dired dir to the next dired dir shown in a split window
       split-height-threshold nil
-      split-width-threshold 0
+      split-width-threshold 111
       )
 
 (defun custom-dired-mode-setup ()
