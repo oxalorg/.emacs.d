@@ -31,7 +31,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Install Corgi
-
 (use-package corgi-packages
   :straight (corgi-packages
              :type git
@@ -40,13 +39,637 @@
 
 (add-to-list #'straight-recipe-repositories 'corgi-packages)
 
-(let ((straight-current-profile 'corgi))
-  (use-package corgi-defaults)
-  (use-package corgi-editor)
-  (use-package corgi-emacs-lisp)
-  (use-package corgi-commands)
-  (use-package corgi-clojure)
-  (use-package corgi-stateline))
+;; (let ((straight-current-profile 'corgi))
+;;   (use-package corgi-defaults)
+;;   (use-package corgi-editor)
+;;   (use-package corgi-emacs-lisp)
+;;   (use-package corgi-commands)
+;;   (use-package corgi-clojure)
+;;   (use-package corgi-stateline))
+
+;;; corgi-commands.el --- Custom commands included with Corgi
+;;
+;; Filename: corgi-commands.el
+;; Package-Requires: ()
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Commentary:
+;;
+;; Commands that are not available in vanilla emacs, and that are not worth
+;; pulling in a separate package to provide them. These should eventually end up
+;; in their own utility package, we do not want too much of this stuff directly
+;; in the emacs config.
+;;
+;;; Code:
+
+(require 'seq)
+
+(defun corgi/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer))))
+
+(defun corgi/switch-to-last-elisp-buffer ()
+  (interactive)
+  (when-let ((the-buf (seq-find (lambda (b)
+                                  (with-current-buffer b
+                                    (derived-mode-p 'emacs-lisp-mode)))
+                                (buffer-list))))
+    (pop-to-buffer the-buf)))
+
+(defun corgi/double-columns ()
+  "Simplified version of spacemacs/window-split-double-column"
+  (interactive)
+  (delete-other-windows)
+  (let* ((previous-files (seq-filter #'buffer-file-name
+                                     (delq (current-buffer) (buffer-list)))))
+    (set-window-buffer (split-window-right)
+                       (or (car previous-files) "*scratch*"))
+    (balance-windows)))
+
+(defun corgi/open-init-el ()
+  (interactive)
+  (find-file (expand-file-name "init.el" user-emacs-directory)))
+
+(defun corgi/open-bindings ()
+  (interactive)
+  (find-file (expand-file-name "corgi-bindings.el" user-emacs-directory)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Corgi Defaults
+;;
+;;; Commentary:
+;;
+;; Various things that really should have been configured this way
+;; out of the box. This is mostly copied from Magnar Sveen's config,
+;; but stripped down.
+;;
+;;; Code:
+
+;; Turn off mouse interface early in startup to avoid momentary display
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+
+(setq inhibit-startup-message t)
+
+;; Allow pasting selection outside of Emacs
+(setq select-enable-clipboard t)
+
+;; Auto refresh buffers
+(global-auto-revert-mode 1)
+
+;; Also auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+
+;; Show keystrokes in progress
+(setq echo-keystrokes 0.1)
+
+;; Move files to trash when deleting
+(setq delete-by-moving-to-trash t)
+
+;; Real emacs knights don't use shift to mark things
+(setq shift-select-mode nil)
+
+;; Transparently open compressed files
+(auto-compression-mode t)
+
+;; Enable syntax highlighting for older Emacsen that have it off
+(global-font-lock-mode t)
+
+;; Answering just 'y' or 'n' will do
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; UTF-8 please
+(setq locale-coding-system 'utf-8)   ; pretty
+(set-terminal-coding-system 'utf-8)  ; pretty
+(set-keyboard-coding-system 'utf-8)  ; pretty
+(set-selection-coding-system 'utf-8) ; please
+(prefer-coding-system 'utf-8)        ; with sugar on top
+
+;; Show active region
+(transient-mark-mode 1)
+(make-variable-buffer-local 'transient-mark-mode)
+(put 'transient-mark-mode 'permanent-local t)
+(setq-default transient-mark-mode t)
+
+;; Always display line and column numbers
+(setq line-number-mode t)
+(setq column-number-mode t)
+
+;; Lines should be 80 characters wide, not 72
+(setq fill-column 80)
+(set-default 'fill-column 80)
+
+;; Never insert tabs
+(set-default 'indent-tabs-mode nil)
+
+;; Show me empty lines after buffer end
+(set-default 'indicate-empty-lines t)
+
+;; Easily navigate sillycased words
+(global-subword-mode 1)
+
+;; Don't break lines for me, please
+;; (setq-default truncate-lines t)
+
+;; Allow recursive minibuffers
+(setq enable-recursive-minibuffers t)
+
+;; Don't be so stingy on the memory, we have lots now. It's the distant future.
+(setq gc-cons-threshold 2000000)
+
+;; Sentences do not need double spaces to end. Period.
+(set-default 'sentence-end-double-space nil)
+
+;; Add parts of each file's directory to the buffer name if not unique
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+
+;; No electric indent
+(setq electric-indent-mode nil)
+
+;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
+;; that you can always see what's happening.
+(setq eval-expression-print-level nil)
+
+;; Don't make backup~ files
+;; (setq make-backup-files nil)
+
+;; Put backups and auto-save files in subdirectories, so the
+;; user-emacs-directory doesn't clutter
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name "backups" user-emacs-directory)))
+      auto-save-file-name-transforms
+      `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+
+;; Stop asking about following symlinks to version controlled files
+(setq vc-follow-symlinks t)
+
+;; Configure common Emoji fonts, making it more likely that Emoji will work out of the box
+(set-fontset-font t 'symbol "Apple Color Emoji")
+(set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
+(set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
+(set-fontset-font t 'symbol "Symbola" nil 'append)
+
+;;;;;;;;;;;;;;; Corgi Editor
+
+(use-package diminish
+  :diminish
+  elisp-slime-nav-mode
+  eldoc-mode
+  subword-mode)
+
+(use-package ivy
+  :defer 0.1
+  :diminish
+  :config
+  (ivy-mode)
+  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-next-line)
+  (define-key ivy-minibuffer-map (kbd "C-k") #'ivy-previous-line))
+
+(use-package counsel
+  :after (ivy)
+  :config
+  ;; This ensures that SPC f r (counsel-recentf, show recently opened files)
+  ;; actually works
+  (recentf-mode 1))
+
+;; Make counsel-M-x show most recently used commands first
+(use-package smex)
+
+(use-package swiper
+  :after (ivy))
+
+(use-package avy)
+
+(use-package undo-fu)
+
+(use-package evil
+  :init (setq evil-want-keybinding nil)
+  :config
+  (evil-mode t)
+  (evil-set-undo-system 'undo-fu)
+  (setq evil-move-cursor-back nil
+        evil-move-beyond-eol t
+        evil-want-fine-undo t
+        evil-mode-line-format 'before
+        evil-normal-state-cursor '(box "orange")
+        evil-insert-state-cursor '(box "green")
+        evil-visual-state-cursor '(box "#F86155")
+        evil-emacs-state-cursor  '(box "purple"))
+
+  ;; Prevent evil-motion-state from shadowing previous/next sexp
+  (require 'evil-maps)
+  (define-key evil-motion-state-map "L" nil)
+  (define-key evil-motion-state-map "M" nil))
+
+(use-package evil-collection
+  :after (evil)
+  :config
+  (evil-collection-init)
+  ;; Stop changing how last-sexp works. Even though we have evil-move-beyond-eol
+  ;; set, this is still being added, and I can't figure out why. Resorting to
+  ;; this hack.
+  (cl-loop
+   for fun
+   in '(elisp--preceding-sexp cider-last-sexp pp-last-sexp)
+   do (advice-mapc (lambda (advice _props) (advice-remove fun advice)) fun)))
+
+(use-package evil-surround
+  :config (global-evil-surround-mode 1))
+
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode 1))
+
+(use-package winum
+  :config (winum-mode 1))
+
+(use-package smartparens
+  :init (require 'smartparens-config)
+  :diminish smartparens-mode
+  :hook (prog-mode . smartparens-mode))
+
+;; We don't actually enable cleverparens, because most of their bindings we
+;; don't want, we install our own bindings for specific sexp movements
+(use-package evil-cleverparens
+  :after (evil smartparens))
+
+(use-package aggressive-indent
+  :diminish aggressive-indent-mode
+  :hook ((clojurex-mode
+          clojurescript-mode
+          clojurec-mode
+          clojure-mode
+          emacs-lisp-mode
+          lisp-data-mode)
+         . aggressive-indent-mode))
+
+(use-package rainbow-delimiters
+  :hook ((cider-repl-mode
+          clojurex-mode
+          clojurescript-mode
+          clojurec-mode
+          clojure-mode
+          emacs-lisp-mode
+          lisp-data-mode
+          inferior-emacs-lisp-mode)
+         . rainbow-delimiters-mode))
+
+(use-package company
+  :diminish company-mode
+  :hook (prog-mode . company-mode))
+
+(use-package projectile
+  :config
+  (projectile-global-mode)
+  (setq projectile-create-missing-test-files t))
+
+(use-package dumb-jump)
+
+(use-package goto-last-change)
+
+(use-package expand-region)
+
+(use-package string-edit)
+
+;; (use-package xclip
+;;   :config
+;;   (when (executable-find xclip-program)
+;;     (xclip-mode t)))
+
+;; Offer to create parent directories if they do not exist
+;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
+(defun magnars/create-non-existent-directory ()
+  (let ((parent-directory (file-name-directory buffer-file-name)))
+    (when (and (not (file-exists-p parent-directory))
+               (y-or-n-p (format "Directory `%s' does not exist! Create it?" parent-directory)))
+      (make-directory parent-directory t))))
+
+(add-to-list 'find-file-not-found-functions #'magnars/create-non-existent-directory)
+
+(defun corgi-editor/-on-buffer-change (win)
+  (unless (and (minibufferp) (not evil-want-minibuffer))
+    (evil-normal-state)))
+
+(add-to-list 'window-buffer-change-functions #'corgi-editor/-on-buffer-change)
+
+;;;;;;;;;;;;;; Corgi emacs lisp
+
+;; Show emacs-lisp eval results in an overlay, CIDER style.
+;; https://endlessparentheses.com/eval-result-overlays-in-emacs-lisp.html
+;; We rely on CIDER to do the heavy lifting, can't seem to find a general library
+;; for doing this style of overlays.
+(defun corgi/eval-overlay (value point)
+  (cider--make-result-overlay (format "%S" value)
+    :where point
+    :duration 'command)
+  ;; Preserve the return value.
+  value)
+
+(advice-add 'eval-region :around
+            (lambda (f beg end &rest r)
+              (corgi/eval-overlay
+               (apply f beg end r)
+               end)))
+
+(advice-add 'eval-last-sexp :filter-return
+            (lambda (r)
+              (corgi/eval-overlay r (point))))
+
+(advice-add 'eval-defun :filter-return
+            (lambda (r)
+              (corgi/eval-overlay
+               r
+               (save-excursion
+                 (end-of-defun)
+                 (point)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Thread-first / thread-last, ported from clojure-mode
+
+(defun corgi/thread ()
+  "Thread by one more level an existing threading macro."
+  (interactive)
+  (ignore-errors
+    (when (looking-at "(")
+      (forward-char 1)
+      (forward-sexp 1)))
+  (search-backward-regexp "(thread-")
+  (down-list)
+  (when (clojure--threadable-p)
+    (prog1 (cond
+            ((looking-at "thread-first")  (clojure--thread-first))
+            ((looking-at "thread-last") (clojure--thread-last)))
+      (clojure--fix-sexp-whitespace 'move-out))))
+
+(defun corgi/elisp--thread-all (first-or-last-thread but-last)
+  (save-excursion
+    (insert-parentheses 1)
+    (insert first-or-last-thread))
+  (while (save-excursion (corgi/thread)))
+  (when (or but-last clojure-thread-all-but-last)
+    (clojure-unwind)))
+
+(defun corgi/elisp-thread-first-all (but-last)
+  (interactive "P")
+  (corgi/elisp--thread-all "thread-first " but-last))
+
+(defun corgi/elisp-thread-last-all (but-last)
+  (interactive "P")
+  (corgi/elisp--thread-all "thread-last " but-last))
+
+(use-package elisp-slime-nav
+  :config
+  :hook ((emacs-lisp-mode ielm-mode) . turn-on-elisp-slime-nav-mode))
+
+(use-package pprint-to-buffer)
+
+;;; corgi-clojure.el --- Clojure configuration for Corgi
+(use-package clojure-mode
+  :magic ("^#![^\n]*/\\(clj\\|clojure\\|bb\\|lumo\\)" . clojure-mode)
+  :config
+  (setq clojure-toplevel-inside-comment-form t
+        ;; Because of CIDER's insistence to send forms to all linked REPLs, we
+        ;; *have* to be able to switch cljc buffer to clj/cljs mode without
+        ;; cider complaining.
+        clojure-verify-major-mode nil)
+
+  ;; TODO: get this upstream. #_ is not a logical sexp
+  (defun corgi/clojure--looking-at-non-logical-sexp (command)
+    "Return non-nil if text after point is \"non-logical\" sexp.
+\"Non-logical\" sexp are ^metadata and #reader.macros."
+    (comment-normalize-vars)
+    (comment-forward (point-max))
+    (looking-at-p "\\(?:#?\\^\\)\\|#:?:?[[:alpha:]]\\|#_"))
+
+  (advice-add #'clojure--looking-at-non-logical-sexp :around #'corgi/clojure--looking-at-non-logical-sexp))
+
+(use-package cider
+  :diminish cider-mode
+  :config
+  (setq cider-preferred-build-tool 'clojure-cli
+        ;; ~make sure we can always debug nrepl issues~
+        ;; Turning this off again, seems it may really blow up memory usage
+        ;; nrepl-log-messages nil
+        )
+
+  ;; TODO: clean this up, submit to upstream where possible
+  ;; More CIDER/clojure-mode stuff
+  ;; - logical-sexp doesn't treat #_ correctly
+
+  ;; New function, should go upstream. Kill all associated REPLs
+  (defun corgi/cider-quit-all ()
+    "Quit all current CIDER REPLs."
+    (interactive)
+    (let ((repls (seq-remove (lambda (r)
+                               (equal r (get-buffer "*babashka-repl*")))
+                             (seq-mapcat #'cdr (sesman-current-sessions 'CIDER)))))
+      (seq-do #'cider--close-connection repls))
+    ;; if there are no more sessions we can kill all ancillary buffers
+    (cider-close-ancillary-buffers)
+    ;; need this to refresh sesman browser
+    (run-hooks 'sesman-post-command-hook))
+
+  ;; When asking for a "matching" REPL (clj/cljs), and no matching REPL is found,
+  ;; return any REPL that is there. This is so that cider-quit can be called
+  ;; repeatedly to close all REPLs in a process. It also means that , s s will go
+  ;; to any REPL if there is one open.
+  (defun corgi/around-cider-current-repl (command &optional type ensure)
+    (let ((repl (or
+                 (if (not type)
+                     (or (funcall command nil)
+                         (funcall command 'any))
+                   (funcall command type))
+                 (get-buffer "*babashka-repl*"))))
+      (if (and ensure (null repl))
+          (cider--no-repls-user-error type)
+        repl)))
+
+  (advice-add #'cider-current-repl :around #'corgi/around-cider-current-repl)
+
+  ;; This essentially redefines cider-repls. The main thing it does is return all
+  ;; REPLs by using sesman-current-sessions (plural) instead of
+  ;; sesman-current-session. It also falls back to the babashka repl if no repls
+  ;; are connected/linked, so we can always eval.
+  (defun corgi/around-cider-repls (command &optional type ensure)
+    (let ((type (cond
+                 ((listp type)
+                  (mapcar #'cider-maybe-intern type))
+                 ((cider-maybe-intern type))))
+          (repls (delete-dups (seq-mapcat #'cdr (or (sesman-current-sessions 'CIDER)
+                                                    (when ensure
+                                                      (user-error "No linked %s sessions" system)))))))
+      (or (seq-filter (lambda (b)
+                        (and (cider--match-repl-type type b)
+                             (not (equal b (get-buffer "*babashka-repl*")))))
+                      repls)
+          (list (get-buffer "*babashka-repl*")))))
+
+  (advice-add #'cider-repls :around #'corgi/around-cider-repls)
+
+  (defun corgi/cider-eval-last-sexp-and-replace ()
+    "Alternative to cider-eval-last-sexp-and-replace, but kills
+clojure logical sexp instead of ELisp sexp, and pprints the
+result."
+    (interactive)
+    (let ((last-sexp (cider-last-sexp)))
+      ;; we have to be sure the evaluation won't result in an error
+      (cider-nrepl-sync-request:eval last-sexp)
+      ;; seems like the sexp is valid, so we can safely kill it
+      (let ((opoint (point)))
+        (clojure-backward-logical-sexp)
+        (kill-region (point) opoint))
+      (cider-interactive-eval last-sexp
+                              (cider-eval-pprint-with-multiline-comment-handler
+                               (current-buffer)
+                               (set-marker (make-marker) (point))
+                               ""
+                               " "
+                               "")
+                              nil
+                              (cider--nrepl-print-request-map fill-column))))
+
+  (defun corgi/cider-pprint-eval-last-sexp-insert ()
+    (interactive)
+    (let ((cider-comment-prefix "")
+          (cider-comment-continued-prefix " ")
+          (cider-comment-postfix ""))
+      (cider-pprint-eval-last-sexp-to-comment)))
+
+  (defadvice cider-find-var (before add-evil-jump activate)
+    (evil-set-jump)))
+
+(use-package clj-refactor
+  :after (cider)
+  :diminish clj-refactor-mode
+  :config
+  (setq cljr-cljc-clojure-test-declaration "[clojure.test :refer [deftest testing is are use-fixtures run-tests join-fixtures]]"
+        cljr-cljs-clojure-test-declaration "[clojure.test :refer [deftest testing is are use-fixtures run-tests join-fixtures]]"
+        cljr-clojure-test-declaration "[clojure.test :refer [deftest testing is are use-fixtures run-tests join-fixtures]]"
+        cljr-eagerly-build-asts-on-startup nil
+        cljr-warn-on-eval nil)
+  :hook ((clojurex-mode-hook
+          clojurescript-mode-hook
+          clojurec-mode-hook
+          clojure-mode-hook)
+         . clj-refactor-mode))
+
+(use-package clj-ns-name
+  :config
+  (clj-ns-name-install))
+
+;; TODO: submit upstream (?)
+(defun corgi/cider-pprint-register (register)
+  "Evaluate a Clojure snippet stored in a register.
+
+Will ask for the register when used interactively. Put `#_clj' or
+`#_cljs' at the start of the snippet to force evaluation to go to
+a specific REPL type, no matter the mode (clojure-mode or
+clojurescript-mode) of the current buffer."
+  (interactive (list (register-read-with-preview "Eval register: ")))
+  (let ((reg (get-register register)))
+    (cond
+     ((string-match-p "^#_cljs" reg)
+      (with-current-buffer (car (cider-repls 'cljs))
+        (cider--pprint-eval-form reg)))
+     ((string-match-p "^#_clj" reg)
+      (with-current-buffer (car (cider-repls 'clj))
+        (cider--pprint-eval-form reg)))
+     (t
+      (cider--pprint-eval-form reg)))))
+
+
+;;; corgi-stateline.el --- Change the background color of the modeline based on the evil state
+;;
+;; Filename: corgi-stateline.el
+;; Package-Requires: ()
+;;
+;;; Code:
+
+
+(defcustom corgi-stateline-normal-fg "black"
+  "Foreground color of the modeline in evil normal state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-normal-bg "gray"
+  "Background color of the modeline in evil normal state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-motion-fg "black"
+  "Foreground color of the modeline in evil motion state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-motion-bg "orangered"
+  "Background color of the modeline in evil motion state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-insert-fg "black"
+  "Foreground color of the modeline in evil insert state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-insert-bg "green"
+  "Background color of the modeline in evil insert state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-visual-fg "white"
+  "Foreground color of the modeline in evil visual state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-visual-bg "royalblue1"
+  "Background color of the modeline in evil visual state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-emacs-fg "white"
+  "Foreground color of the modeline in evil emacs state"
+  :type 'color
+  :group 'corgi)
+
+(defcustom corgi-stateline-emacs-bg "slateblue3"
+  "Background color of the modeline in evil emacs state"
+  :type 'color
+  :group 'corgi)
+
+(defun corgi-stateline/enter-normal-state ()
+  (face-remap-add-relative 'mode-line :foreground corgi-stateline-normal-fg)
+  (face-remap-add-relative 'mode-line :background corgi-stateline-normal-bg))
+
+(defun corgi-stateline/enter-motion-state ()
+  (face-remap-add-relative 'mode-line :foreground corgi-stateline-motion-fg)
+  (face-remap-add-relative 'mode-line :background corgi-stateline-motion-bg))
+
+(defun corgi-stateline/enter-insert-state ()
+  (face-remap-add-relative 'mode-line :foreground corgi-stateline-insert-fg)
+  (face-remap-add-relative 'mode-line :background corgi-stateline-insert-bg))
+
+(defun corgi-stateline/enter-visual-state ()
+  (face-remap-add-relative 'mode-line :foreground corgi-stateline-visual-fg)
+  (face-remap-add-relative 'mode-line :background corgi-stateline-visual-bg))
+
+(defun corgi-stateline/enter-emacs-state ()
+  (face-remap-add-relative 'mode-line :foreground corgi-stateline-emacs-fg)
+  (face-remap-add-relative 'mode-line :background corgi-stateline-emacs-bg))
+
+(add-hook 'evil-normal-state-entry-hook #'corgi-stateline/enter-normal-state)
+(add-hook 'evil-motion-state-entry-hook #'corgi-stateline/enter-motion-state)
+(add-hook 'evil-insert-state-entry-hook #'corgi-stateline/enter-insert-state)
+(add-hook 'evil-visual-state-entry-hook #'corgi-stateline/enter-visual-state)
+(add-hook 'evil-emacs-state-entry-hook #'corgi-stateline/enter-emacs-state)
+
 
 (defun ox/corkey-reload ()
   (interactive)
@@ -54,13 +677,14 @@
     (use-package corkey
       :config
       (corkey-mode 1)
-      (corkey/install-bindings '(custom-keys) '(corgi-signals custom-signals)))))
+      (corkey/install-bindings '(custom-keys) '(custom-signals)))))
 
 (ox/corkey-reload)
 
 (defun ox/open-custom-keys ()
   (interactive)
   (find-file (expand-file-name "custom-keys.el" user-emacs-directory)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Your own stuff goes here, we recommend these extra packages
@@ -374,9 +998,191 @@ mismatched parens are changed based on the left one."
 (use-package forge
   :after magit)
 
+(defun ox/left-paren-call ()
+  (interactive)
+  (let ((last-command-event ?\())
+    (call-interactively (key-binding "("))))
+
+(defun ox/right-paren-call ()
+  (interactive)
+  (let ((last-command-event ?\())
+    (call-interactively (key-binding ")"))))
+
 ;; I use parens so much that it makes sense to make them easier to type
-(evil-define-key 'insert 'global
-  (kbd "9") (lambda () (interactive) (insert "("))
-  (kbd "0") (lambda () (interactive) (insert ")"))
-  (kbd "(") (lambda () (interactive) (insert "9"))
-  (kbd ")") (lambda () (interactive) (insert "0")))
+;; (evil-define-key 'insert 'global
+  ;; (kbd "9") 'ox/left-paren-call
+  ;; (kbd "0") 'ox/right-paren-call
+  ;; (kbd "(") (lambda () (interactive) (insert "9"))
+  ;; (kbd ")") (lambda () (interactive) (insert "0"))
+  ;; )
+
+(use-package vertico
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
+
+;; Optionally use the `orderless' completion style. See
+;; `+orderless-dispatch' in the Consult wiki for an advanced Orderless style
+;; dispatcher. Additionally enable `partial-completion' for file path
+;; expansion. `partial-completion' is important for wildcard support.
+;; Multiple files can be opened at once with `find-file' if you enter a
+;; wildcard. You may also give the `initials' completion style a try.
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+
+;; Example configuration for Consult
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c b" . consult-bookmark)
+         ("C-c k" . consult-kmacro)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("<help> a" . consult-apropos)            ;; orig. apropos-command
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s f" . consult-find)
+         ("M-s F" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI. You may want to also
+  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Optionally replace `completing-read-multiple' with an enhanced version.
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+   :preview-key (kbd "M-."))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; Optionally configure a function which returns the project root directory.
+  ;; There are multiple reasonable alternatives to chose from.
+  ;;;; 1. project.el (project-roots)
+  (setq consult-project-root-function
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project)))))
+  ;;;; 2. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-root-function #'projectile-project-root)
+  ;;;; 3. vc.el (vc-root-dir)
+  ;; (setq consult-project-root-function #'vc-root-dir)
+  ;;;; 4. locate-dominating-file
+  ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
+  )
+
+(use-package ivy :disabled)
+(use-package consult :disabled)
+;; Enable richer annotations using the Marginalia package
+(use-package marginalia
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+
+  ;; The :init configuration is always executed (Not lazy!)
+  :init
+
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
