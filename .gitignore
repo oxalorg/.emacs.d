@@ -11,3 +11,6 @@
 /.emacs.desktop.lock
 /eshell/
 /forge-database.sqlite
+/corgi-packages/
+/eln-cache/
+/history
