@@ -5,63 +5,43 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Initialize package sources
+(require 'package)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+  ;; Initialize use-package on non-Linux platforms
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
 ;; Install straight.el
 
-(defvar bootstrap-version)
-(let ((install-url "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el")
-      (bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer (url-retrieve-synchronously install-url 'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Install and enable use-package
-
-(straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Setup before Corgi
-
+;; (defvar bootstrap-version)
+;; (let ((bootstrap-file
+;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+;;       (bootstrap-version 6))
+;;   (unless (file-exists-p bootstrap-file)
+;;     (with-current-buffer
+;;         (url-retrieve-synchronously
+;;          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+;;          'silent 'inhibit-cookies)
+;;       (goto-char (point-max))
+;;       (eval-print-last-sexp)))
+;;   (load bootstrap-file nil 'nomessage))
+;;
+;; (straight-use-package 'use-package)
+;; (setq straight-use-package-by-default t)
+;;
 (setq evil-want-C-u-scroll t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Install Corgi
-(use-package corgi-packages
-  :straight (corgi-packages
-             :type git
-             :host github
-             :repo "lambdaisland/corgi-packages"))
-
-(add-to-list #'straight-recipe-repositories 'corgi-packages)
-
-;; (let ((straight-current-profile 'corgi))
-;;   (use-package corgi-defaults)
-;;   (use-package corgi-editor)
-;;   (use-package corgi-emacs-lisp)
-;;   (use-package corgi-commands)
-;;   (use-package corgi-clojure)
-;;   (use-package corgi-stateline))
-
-;;; corgi-commands.el --- Custom commands included with Corgi
-;;
-;; Filename: corgi-commands.el
-;; Package-Requires: ()
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;; Commentary:
-;;
-;; Commands that are not available in vanilla emacs, and that are not worth
-;; pulling in a separate package to provide them. These should eventually end up
-;; in their own utility package, we do not want too much of this stuff directly
-;; in the emacs config.
-;;
-;;; Code:
 
 (require 'seq)
 
@@ -93,21 +73,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (interactive)
   (find-file (expand-file-name "init.el" user-emacs-directory)))
 
-(defun corgi/open-bindings ()
-  (interactive)
-  (find-file (expand-file-name "corgi-bindings.el" user-emacs-directory)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Corgi Defaults
-;;
-;;; Commentary:
-;;
+;; Defaults
 ;; Various things that really should have been configured this way
-;; out of the box. This is mostly copied from Magnar Sveen's config,
-;; but stripped down.
-;;
-;;; Code:
+;; out of the box. This is mostly copied from Corgi defaults which
+;; in turn has been copied from Magnar Sveen's config, but stripped down.
 
 ;; Turn off mouse interface early in startup to avoid momentary display
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
@@ -224,26 +194,8 @@ Repeated invocations toggle between the two most recently open buffers."
   eldoc-mode
   subword-mode)
 
-(use-package ivy
-  :defer 0.1
-  :diminish
-  :config
-  (ivy-mode)
-  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-next-line)
-  (define-key ivy-minibuffer-map (kbd "C-k") #'ivy-previous-line))
-
-(use-package counsel
-  :after (ivy)
-  :config
-  ;; This ensures that SPC f r (counsel-recentf, show recently opened files)
-  ;; actually works
-  (recentf-mode 1))
-
 ;; Make counsel-M-x show most recently used commands first
 (use-package smex)
-
-(use-package swiper
-  :after (ivy))
 
 (use-package avy)
 
@@ -322,20 +274,16 @@ Repeated invocations toggle between the two most recently open buffers."
           inferior-emacs-lisp-mode)
          . rainbow-delimiters-mode))
 
-(use-package company
-  :diminish company-mode
-  :hook (prog-mode . company-mode))
-
 (use-package projectile
   :config
   (projectile-global-mode)
   (setq projectile-create-missing-test-files t))
 
-(use-package dumb-jump)
+;; (use-package dumb-jump)
 
-(use-package goto-last-change)
+;; (use-package goto-last-change)
 
-(use-package expand-region)
+;; (use-package expand-region)
 
 (use-package string-edit)
 
@@ -429,7 +377,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   :hook ((emacs-lisp-mode ielm-mode) . turn-on-elisp-slime-nav-mode))
 
-(use-package pprint-to-buffer)
+;; (use-package pprint-to-buffer)
 
 ;;; corgi-clojure.el --- Clojure configuration for Corgi
 (use-package clojure-mode
@@ -561,9 +509,9 @@ result."
           clojure-mode-hook)
          . clj-refactor-mode))
 
-(use-package clj-ns-name
-  :config
-  (clj-ns-name-install))
+;; (use-package clj-ns-name
+;;   :config
+;;   (clj-ns-name-install))
 
 ;; TODO: submit upstream (?)
 (defun corgi/cider-pprint-register (register)
@@ -592,7 +540,6 @@ clojurescript-mode) of the current buffer."
 ;; Package-Requires: ()
 ;;
 ;;; Code:
-
 
 (defcustom corgi-stateline-normal-fg "black"
   "Foreground color of the modeline in evil normal state"
@@ -671,21 +618,6 @@ clojurescript-mode) of the current buffer."
 (add-hook 'evil-emacs-state-entry-hook #'corgi-stateline/enter-emacs-state)
 
 
-(defun ox/corkey-reload ()
-  (interactive)
-  (let ((straight-current-profile 'corgi))
-    (use-package corkey
-      :config
-      (corkey-mode 1)
-      (corkey/install-bindings '(custom-keys) '(custom-signals)))))
-
-(ox/corkey-reload)
-
-(defun ox/open-custom-keys ()
-  (interactive)
-  (find-file (expand-file-name "custom-keys.el" user-emacs-directory)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Your own stuff goes here, we recommend these extra packages
 
@@ -758,8 +690,10 @@ clojurescript-mode) of the current buffer."
 ;;   (doom-themes-visual-bell-config)
 ;;   ;; Corrects (and improves) org-mode's native fontification.
 ;;   (doom-themes-org-config))
-(use-package vundo
-  :straight (vundo :type git :host github :repo "casouri/vundo"))
+
+;; (use-package vundo
+;;   :straight (vundo :type git :host github :repo "casouri/vundo"))
+
 (use-package evil-cleverparens
   :commands evil-cleverparens-mode
   :init
@@ -942,28 +876,10 @@ mismatched parens are changed based on the left one."
   (paredit-open-round)
   (evil-insert 0))
 
-(define-key ivy-minibuffer-map (kbd "<tab>") 'ivy-next-line)
-(define-key ivy-minibuffer-map (kbd "<backtab>") 'ivy-previous-line)
+;; (define-key ivy-minibuffer-map (kbd "<tab>") 'ivy-next-line)
+;; (define-key ivy-minibuffer-map (kbd "<backtab>") 'ivy-previous-line)
 
 (setq save-interprogram-paste-before-kill t)
-
-(defun counsel-helpful-keymap-describe ()
-  "select keymap with ivy, display help with helpful"
-  (interactive)
-  (ivy-read "describe keymap: " (let (cands)
-				  (mapatoms
-				   (lambda (x)
-				     (and (boundp x) (keymapp (symbol-value x))
-					  (push (symbol-name x) cands))))
-				  cands)
-	    :require-match t
-	    :history 'counsel-describe-keymap-history
-	    :sort t
-	    :preselect (ivy-thing-at-point)
-	    :keymap counsel-describe-map
-	    :caller 'counsel-helpful-keymap-describe
-	    :action (lambda (map-name)
-		      (helpful-variable (intern map-name))) ))
 
 (defun ox/cider-switch-to-repl-buffer-same-window-force ()
   (interactive)
@@ -1052,137 +968,3 @@ mismatched parens are changed based on the left one."
 (use-package savehist
   :init
   (savehist-mode))
-
-
-;; Example configuration for Consult
-(use-package consult
-  ;; Replace bindings. Lazily loaded due by `use-package'.
-  :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
-         ("C-c b" . consult-bookmark)
-         ("C-c k" . consult-kmacro)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ("<help> a" . consult-apropos)            ;; orig. apropos-command
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s f" . consult-find)
-         ("M-s F" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI. You may want to also
-  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-
-  ;; The :init configuration is always executed (Not lazy)
-  :init
-
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
-  (setq register-preview-delay 0
-        register-preview-function #'consult-register-format)
-
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
-  :config
-
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key (kbd "M-."))
-  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
-  (consult-customize
-   consult-theme
-   :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-   :preview-key (kbd "M-."))
-
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; (kbd "C-+")
-
-  ;; Optionally make narrowing help available in the minibuffer.
-  ;; You may want to use `embark-prefix-help-command' or which-key instead.
-  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-
-  ;; Optionally configure a function which returns the project root directory.
-  ;; There are multiple reasonable alternatives to chose from.
-  ;;;; 1. project.el (project-roots)
-  (setq consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project)))))
-  ;;;; 2. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-root-function #'projectile-project-root)
-  ;;;; 3. vc.el (vc-root-dir)
-  ;; (setq consult-project-root-function #'vc-root-dir)
-  ;;;; 4. locate-dominating-file
-  ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
-  )
-
-(use-package ivy :disabled)
-(use-package consult :disabled)
-;; Enable richer annotations using the Marginalia package
-(use-package marginalia
-  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-
-  ;; The :init configuration is always executed (Not lazy!)
-  :init
-
-  ;; Must be in the :init section of use-package such that the mode gets
-  ;; enabled right away. Note that this forces loading the package.
-  (marginalia-mode))
