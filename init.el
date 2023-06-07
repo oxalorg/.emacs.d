@@ -16,7 +16,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
+;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -69,7 +69,7 @@ Repeated invocations toggle between the two most recently open buffers."
                        (or (car previous-files) "*scratch*"))
     (balance-windows)))
 
-(defun corgi/open-init-el ()
+(defun ox/open-init-el ()
   (interactive)
   (find-file (expand-file-name "init.el" user-emacs-directory)))
 
@@ -127,6 +127,10 @@ Repeated invocations toggle between the two most recently open buffers."
 (put 'transient-mark-mode 'permanent-local t)
 (setq-default transient-mark-mode t)
 
+;; Split threshold
+(setq split-width-threshold 200
+      split-height-threshold nil)
+
 ;; Always display line and column numbers
 (setq line-number-mode t)
 (setq column-number-mode t)
@@ -146,6 +150,12 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;; Don't break lines for me, please
 ;; (setq-default truncate-lines t)
+
+;; Scroll off
+(setq scroll-margin 10
+      scroll-step 1
+      scroll-conservatively 10000
+      scroll-preserve-screen-position 1)
 
 ;; Allow recursive minibuffers
 (setq enable-recursive-minibuffers t)
@@ -201,6 +211,13 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package undo-fu)
 
+(use-package general
+  :config
+  (general-create-definer ox/leader-define-key
+    :states 'normal
+    :keymaps 'override
+    :prefix "SPC"))
+
 (use-package evil
   :init (setq evil-want-keybinding nil)
   :config
@@ -214,6 +231,14 @@ Repeated invocations toggle between the two most recently open buffers."
         evil-insert-state-cursor '(box "green")
         evil-visual-state-cursor '(box "#F86155")
         evil-emacs-state-cursor  '(box "purple"))
+
+  ;; (with-eval-after-load 'evil-maps
+  ;;   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
+  ;;   (define-key evil-motion-state-map (kbd ";") 'evil-ex))
+  (general-define-key
+   :states 'motion
+   ";" 'evil-ex
+   ":" 'evil-repeat-find-char)
 
   ;; Prevent evil-motion-state from shadowing previous/next sexp
   (require 'evil-maps)
@@ -251,7 +276,10 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; We don't actually enable cleverparens, because most of their bindings we
 ;; don't want, we install our own bindings for specific sexp movements
 (use-package evil-cleverparens
-  :after (evil smartparens))
+  :after (evil smartparens)
+  :config
+  
+  )
 
 (use-package aggressive-indent
   :diminish aggressive-indent-mode
@@ -260,7 +288,11 @@ Repeated invocations toggle between the two most recently open buffers."
           clojurec-mode
           clojure-mode
           emacs-lisp-mode
-          lisp-data-mode)
+          lisp-data-mode
+          typescript-ts-mode
+          tsx-ts-mode
+          js-ts-mode
+          piglet-mode)
          . aggressive-indent-mode))
 
 (use-package rainbow-delimiters
@@ -277,7 +309,12 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package projectile
   :config
   (projectile-global-mode)
-  (setq projectile-create-missing-test-files t))
+  (setq projectile-create-missing-test-files t)
+  (setq projectile-project-search-path '("~/projects/" "~/playground/"))
+  (defun ox/refresh-projects-dir ()
+    (interactive)
+    ;; (projectile-discover-projects-in-directory "~/projects")
+    (projectile-discover-projects-in-search-path)))
 
 ;; (use-package dumb-jump)
 
@@ -631,14 +668,9 @@ clojurescript-mode) of the current buffer."
                                 ("Asia/Kolkata" "Mumbai"))
       display-time-world-time-format "%a, %l:%M %p"
       org-directory "~/org/"
-      org-journal-file-type 'monthly
-      org-journal-date-format "%a, %Y-%m-%d"
-      org-journal-file-format "%Y-%m-%d.org"
       dired-recursive-copies (quote always) ; “always” means no asking
       dired-recursive-deletes (quote top) ; “top” means ask once
       dired-dwim-target t ; Copy from one dired dir to the next dired dir shown in a split window
-      split-height-threshold nil
-      split-width-threshold 111
       )
 
 (defun custom-dired-mode-setup ()
@@ -655,30 +687,48 @@ clojurescript-mode) of the current buffer."
 (setq ivy-initial-inputs-alist nil)
 
 ;; (global-superword-mode t)
-;; (and window-system (server-start))
+(and window-system (server-start))
 ;; (desktop-save-mode 0)
 (show-paren-mode 1)
-(set-frame-font "Iosevka 20")
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (set-frame-font "Iosevka 20")
+;; You will most likely need to adjust this font size for your system!
+(defvar ox/default-font-size 200)
+(defvar ox/default-variable-font-size 200)
+;; Make frame transparency overridable
+(defvar ox/frame-transparency '(90 . 90))
+
+(set-face-attribute 'default nil :font "Iosevka" :height ox/default-font-size)
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil :font "Iosevka" :height ox/default-font-size)
+;; Set the variable pitch face
+;; (set-face-attribute 'variable-pitch nil :font "Iosveka" :height ox/default-variable-font-size :weight 'regular)
 
 (use-package dired-subtree)
 (use-package markdown-mode)
 (use-package yaml-mode)
+
 (use-package org
   :config
-  (setq org-startup-indented t))
-(use-package magit)
-(use-package projectile
+  (setq org-startup-indented t
+        org-extend-today-until 4))
+
+(use-package org-journal
+  :after (org)
   :config
-  (setq projectile-project-search-path '("~/projects/")))
-(use-package counsel-projectile
-  :init
-  (setq projectile-indexing-method 'hybrid)
-  ;; (setq projectile-sort-order 'recently-active)
-  (setq projectile-sort-order 'recentf))
-(use-package cherry-blossom-theme
-  :config
-  (load-theme 'cherry-blossom t))
+  (setq org-journal-dir (expand-file-name "journal" org-directory)
+        org-journal-file-type 'monthly
+        org-journal-date-format "%Y-%m-%d, %a"
+        org-journal-file-format "%Y-%m.org"
+        org-journal-time-format ""))
+
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+;; (use-package cherry-blossom-theme
+;;   :config
+;;   (load-theme 'cherry-blossom t))
 ;; (use-package doom-themes
 ;;   :ensure t
 ;;   :config
@@ -758,10 +808,6 @@ clojurescript-mode) of the current buffer."
      ;; force update evil keymaps after diff-hl-mode loaded
      (add-hook 'diff-hl-mode-hook #'evil-normalize-keymaps)))
 
-(with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
-  (define-key evil-motion-state-map (kbd ";") 'evil-ex))
-
 ;; web-mode
 (defun web-mode-init-hook ()
   "Hooks for Web mode.  Adjust indent."
@@ -770,8 +816,8 @@ clojurescript-mode) of the current buffer."
 (use-package web-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
-  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+  ;; (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
+  ;; (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
   (add-hook 'web-mode-hook  'web-mode-init-hook))
 
 (defun html-to-hiccup-buffer ()
@@ -866,11 +912,6 @@ mismatched parens are changed based on the left one."
         ("[" (ox/toggle-parens--replace "{}" start end))
         ("{" (ox/toggle-parens--replace "()" start end))))))
 
-(defun ox/refresh-projects-dir ()
-  (interactive)
-  ;; (projectile-discover-projects-in-directory "~/projects")
-  (projectile-discover-projects-in-search-path))
-
 (defun ox/open-round-insert ()
   (interactive)
   (paredit-open-round)
@@ -925,41 +966,33 @@ mismatched parens are changed based on the left one."
     (call-interactively (key-binding ")"))))
 
 ;; I use parens so much that it makes sense to make them easier to type
+;; (general-define-key
+;;  :states 'insert
+;;  "9" 'ox/left-paren-call
+;;  "0" 'ox/right-paren-call
+;;  "(" (lambda () (interactive) (insert "9"))
+;;  ")" (lambda () (interactive) (insert "0")))
+
 ;; (evil-define-key 'insert 'global
-  ;; (kbd "9") 'ox/left-paren-call
-  ;; (kbd "0") 'ox/right-paren-call
-  ;; (kbd "(") (lambda () (interactive) (insert "9"))
-  ;; (kbd ")") (lambda () (interactive) (insert "0"))
-  ;; )
+;; (kbd "9") 'ox/left-paren-call
+;; (kbd "0") 'ox/right-paren-call
+;; (kbd "(") (lambda () (interactive) (insert "9"))
+;; (kbd ")") (lambda () (interactive) (insert "0"))
+;; )
+
+(use-package evil-swap-keys
+  :after (evil)
+  :config
+  (evil-swap-keys-add-pair "9" "(")
+  (evil-swap-keys-add-pair "0" ")"))
 
 (use-package vertico
   :init
   (vertico-mode)
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save))
 
-  ;; Different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  ;; (setq vertico-cycle t)
-  )
-
-;; Optionally use the `orderless' completion style. See
-;; `+orderless-dispatch' in the Consult wiki for an advanced Orderless style
-;; dispatcher. Additionally enable `partial-completion' for file path
-;; expansion. `partial-completion' is important for wildcard support.
-;; Multiple files can be opened at once with `find-file' if you enter a
-;; wildcard. You may also give the `initials' completion style a try.
 (use-package orderless
   :init
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
-  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
@@ -968,3 +1001,309 @@ mismatched parens are changed based on the left one."
 (use-package savehist
   :init
   (savehist-mode))
+
+;; Example configuration for Consult
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+  :config
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   :preview-key '(:debounce 0.1 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  
+  )
+
+(use-package consult-projectile)
+
+(use-package marginalia
+  :ensure t
+  :config
+  (marginalia-mode))
+
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-popupinfo-delay '(0.1 . 0.1))
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.
+  ;; This is recommended since Dabbrev can be used globally (M-/).
+  ;; See also `corfu-exclude-modes'.
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode 1)
+  (eldoc-add-command #'corfu-insert)
+  :config
+  (general)
+  )
+
+(use-package cbor)
+(use-package websocket
+  :after (cbor))
+
+(use-package pdp
+  :ensure nil
+  :load-path "~/projects/piglet-emacs")
+
+(use-package piglet-mode
+  :ensure nil
+  :after (pdp)
+  :load-path "~/projects/piglet-emacs")
+
+(use-package treesit
+  :ensure nil
+  :commands (treesit-install-language-grammar nf/treesit-install-all-languages)
+  :init
+  (setq treesit-font-lock-level 4)
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cmake "https://github.com/uyha/tree-sitter-cmake")
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+  :config
+  (defun nf/treesit-install-all-languages ()
+    "Install all languages specified by `treesit-language-source-alist'."
+    (interactive)
+    (let ((languages (mapcar 'car treesit-language-source-alist)))
+      (dolist (lang languages)
+	(treesit-install-language-grammar lang)
+	(message "`%s' parser was installed." lang)
+	(sit-for 0.75))))
+  (setq treesit-max-buffer-size (* 2048 1024 1024))
+  :init
+  (setq c-ts-mode-indent-offset 4)
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(js-mode . js-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(lua-mode . lua-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(sql-mode . sql-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(js-json-mode . json-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode)))
+
+
+(require 'pdp)
+
+(use-package eglot
+  :hook
+  ((js-ts-mode . eglot-ensure)
+   (tsx-ts-mode . eglot-ensure)
+   (typescript-ts-mode . eglot-ensure))
+  ;; :custom
+  ;; (eglot-stay-out-of indent-tabs-mode) ;; (This didn't work)
+  )
+
+(defun kap/eglot-current-server ()
+  (interactive)
+  (message "%s" (process-command (jsonrpc--process (eglot-current-server)))))
+
+(defun corgi/cider-jack-in-babashka ()
+  "Start a utility CIDER REPL backed by Babashka, not related to a
+specific project."
+  (interactive)
+  (let ((project-dir user-emacs-directory))
+    (nrepl-start-server-process
+     project-dir
+     "bb --nrepl-server 0"
+     (lambda (server-buf)
+       (set-process-query-on-exit-flag
+        (get-buffer-process server-buf) nil)
+       (cider-nrepl-connect
+        (list :repl-buffer server-buf
+              :repl-type 'clj
+              :host (plist-get nrepl-endpoint :host)
+              :port (plist-get nrepl-endpoint :port)
+              :project-dir project-dir
+              :session-name "babashka"
+              :repl-init-function (lambda ()
+                                    (setq-local cljr-suppress-no-project-warning t
+                                                cljr-suppress-middleware-warnings t
+                                                process-query-on-exit-flag nil)
+                                    (set-process-query-on-exit-flag
+                                     (get-buffer-process (current-buffer)) nil)
+                                    (rename-buffer "*babashka-repl*"))))))))
+
+;; Create a *scratch-clj* buffer for evaluating ad-hoc Clojure expressions. If
+;; you make sure there's always a babashka REPL connection then this is a cheap
+;; way to always have a place to type in some quick Clojure expression evals.
+(with-current-buffer (get-buffer-create "*scratch-clj*")
+  (clojure-mode))
+
+;; Connect to Babashka if we can find it. This is a nice way to always have a
+;; valid REPL to fall back to. You'll notice that with this all Clojure buffers
+;; get a green "bb" indicator, unless there's a more specific clj/cljs REPL
+;; available.
+;; (when (executable-find "bb")
+;;   (corgi/cider-jack-in-babashka))
+
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.d.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.mjs\\'" . js-ts-mode))
+
+(use-package expand-region
+  :config
+  (load-file (expand-file-name "treesit-er-expansions.el" user-emacs-directory)))
+
+(use-package treemacs
+  :ensure t)
+
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :ensure t)
+
+(use-package json)
+(use-package request)
+(use-package clockify
+  :ensure nil
+  :load-path "~/projects/emacs-clockify"
+  :init
+  (setq clockify-api-key "YzVjNjFmODYtMThkMC00MWZlLTk0MDYtNTMzMjcxNmE2YWE4")
+  ;; (setq clockify-user-id "<user-id>")
+  (setq clockify-workspace "630c782eb59c366b0e2038be")
+  )
+
+(use-package keyfreq
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  (setq keyfreq-excluded-commands
+        '(self-insert-command
+          forward-char
+          backward-char
+          previous-line
+          next-line)))
+
+(use-package emojify)
+(use-package gitmoji
+  :ensure nil
+  :load-path "~/projects/emacs-gitmoji")
+
+;; Possibly look in the future
+;; https://github.com/fourier/ztree
+;; https://github.com/Boruch-Baum/emacs-diredc
+
+;; Keybindings
+(ox/leader-define-key
+  "." 'find-file
+  "/" 'consult-ripgrep
+  "RET" 'vertico-repeat-select
+  "a" 'evil-cp-insert-at-end-of-form
+  "bb" 'consult-buffer
+  "bB" 'consult-buffer-other-window
+  "bd" 'evil-delete-buffer
+  "bd" 'kill-current-buffer
+  "bm" 'consult-bookmark
+  "fe" 'ox/open-init-el
+  "ff" 'projectile-find-file
+  "fi" 'ox/open-init-el
+  "fr" 'consult-recent-file
+  "ft" 'treemacs
+  "gg" 'magit-status
+  "ge" 'gitmoji-insert-emoji
+  "h" 'help-command
+  "jj" 'org-journal-new-entry
+  "pa" 'projectile-add-known-project
+  "pg" 'projectile-grep
+  "pp" 'projectile-switch-project
+  "pr" 'ox/refresh-projects-dir
+  "rr" 'consult-register
+  "rr" 'eglot-rename
+  "rs" 'consult-register-store
+  "sl" 'consult-line
+  "w1" 'delete-other-windows
+  "w2" 'corgi/double-columns
+  "wd" 'delete-window
+  "wo" 'other-window
+  "ww" 'evil-window-next
+  "/" 'execute-extended-command
+  )
+
+(ox/leader-define-key
+  :keymaps 'emacs-lisp-mode-map
+  "ee" 'eval-last-sexp
+  )
+
+(ox/leader-define-key
+  :keymaps 'cider-mode-map
+  "ee" 'cider-eval-last-sexp
+  "eb" 'cider-eval-buffer
+  "ed" 'cider-eval-defun-at-point
+  "eD" 'cider-
+  )
+
+(general-define-key
+ :states 'normal
+ "RET" 'er/expand-region
+ "DEL" 'evil-switch-to-windows-last-buffer)
+
+(general-define-key
+ :states 'normal
+ :keymaps 'eglot-mode-map
+ "gd" 'xref-find-definitions
+ "gD" 'xref-find-definitions-other-window
+ "g5" 'xref-find-definitions-other-frame
+ "C-t" 'xref-pop-marker-stack
+ "gr" 'xref-find-references
+ ;; "K" 'eldoc-doc-buffer
+ )

@@ -17,3 +17,7 @@
 /bookmarks
 /projects
 /forge-database-*
+/.cache/
+/emojis/
+/request/
+/tree-sitter/
