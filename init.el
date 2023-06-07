@@ -1218,7 +1218,7 @@ specific project."
   :ensure nil
   :load-path "~/projects/emacs-clockify"
   :init
-  (setq clockify-api-key "YzVjNjFmODYtMThkMC00MWZlLTk0MDYtNTMzMjcxNmE2YWE4")
+  (setq clockify-api-key "<>")
   ;; (setq clockify-user-id "<user-id>")
   (setq clockify-workspace "630c782eb59c366b0e2038be")
   )
