@@ -1262,6 +1262,7 @@ specific project."
   "/" 'consult-ripgrep
   "RET" 'vertico-repeat-select
   "a" 'evil-cp-insert-at-end-of-form
+  "SPC" 'consult-buffer
   "bb" 'consult-buffer
   "bB" 'consult-buffer-other-window
   "bd" 'evil-delete-buffer
@@ -1289,7 +1290,6 @@ specific project."
   "wd" 'delete-window
   "wo" 'other-window
   "ww" 'evil-window-next
-  "/" 'execute-extended-command
   )
 
 (ox/leader-define-key
@@ -1302,11 +1302,20 @@ specific project."
   "ee" 'cider-eval-last-sexp
   "eb" 'cider-eval-buffer
   "ed" 'cider-eval-defun-at-point
-  "eD" 'cider-
+  "eD" 'cider-eval-defun-to-comment
+  )
+
+(ox/leader-define-key
+  :keymaps 'piglet-mode-map
+  "ee" 'pdp-eval-last-sexp
+  "eb" 'pdp-eval-buffer
+  "ed" 'pdp-eval-outer-sexp
   )
 
 (general-define-key
  :states 'normal
+ :keymaps 'override
+ "S" 'avy-goto-char-timer
  "RET" 'er/expand-region
  "DEL" 'evil-switch-to-windows-last-buffer)
 
