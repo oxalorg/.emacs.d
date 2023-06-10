@@ -18,9 +18,21 @@
 
 ;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+  (package-install 'use-package)
+  (package-install 'quelpa))
+
+(unless (package-installed-p 'quelpa)
+  (package-install 'quelpa))
 
 (require 'use-package)
+
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
+(setq use-package-ensure-function 'quelpa)
 (setq use-package-always-ensure t)
 
 ;; Install straight.el
