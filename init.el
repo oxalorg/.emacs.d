@@ -738,6 +738,9 @@ clojurescript-mode) of the current buffer."
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(use-package forge
+  :after magit)
+
 ;; (use-package cherry-blossom-theme
 ;;   :config
 ;;   (load-theme 'cherry-blossom t))
@@ -963,9 +966,6 @@ mismatched parens are changed based on the left one."
   (add-hook 'evil-org-mode-hook #'evil-normalize-keymaps)
   (add-hook 'org-mode-hook 'evil-org-mode)
   )
-
-(use-package forge
-  :after magit)
 
 (defun ox/left-paren-call ()
   (interactive)
