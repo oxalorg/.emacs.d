@@ -1086,8 +1086,10 @@ mismatched parens are changed based on the left one."
   )
 
 (use-package cbor)
+
 (use-package websocket
-  :after (cbor))
+  :after (cbor)
+  :quelpa (websocket :fetcher github :repo "ahyatt/emacs-websocket"))
 
 (use-package pdp
   :ensure nil
