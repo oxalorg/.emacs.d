@@ -1,5 +1,9 @@
 # oxalorg's emacs configuration
 
+🚨⚠️ **MOVED** to: https://github.com/oxalorg/dotfiles/tree/master/emacs.d 🚨⚠️
+
+## OLD README
+
 I've been maintaining a [dotfiles repo](https://github.com/oxalorg/dotfiles) over the years.
 
 But recently I find myself spending more and more time in just emacs. This is a combination of 
