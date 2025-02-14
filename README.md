@@ -1,18 +1,16 @@
 # oxalorg's emacs configuration
 
-🚨⚠️ **MOVED** to: https://github.com/oxalorg/dotfiles/tree/master/emacs.d 🚨⚠️
+This configuration is based off [Corgi](https://github.com/lambdaisland/corgi). 
 
-## OLD README
-
-I've been maintaining a [dotfiles repo](https://github.com/oxalorg/dotfiles) over the years.
+Watch the entry video I made about this configuration at: https://www.youtube.com/watch?v=5q4UmX45ZlM
 
 But recently I find myself spending more and more time in just emacs. This is a combination of 
 1. Being less interested in shiny new things
 2. More conscious focus on improving my 80% (code stuff) rather than my 20% (everything else in the unixy world)
 3. Effort to make my computing environment minimal
 
-## Special thanks
+### Previous $HOME
 
-Since I spend most of my time in Clojure and Clojurescript this configuration is mostly geared towards it.
+I've been maintaining a [dotfiles repo](https://github.com/oxalorg/dotfiles) over the years.
 
-I've used the amazing set of emacs packages by @plexus called as [Corgi](https://github.com/lambdaisland/corgi) and [Corgi-packages](https://github.com/lambdaisland/corgi-packages) as a base to develop my personal config off of.
+I've extracted this .emacs.d from that repo: https://github.com/oxalorg/dotfiles/tree/master/emacs.d
