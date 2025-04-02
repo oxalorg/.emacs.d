@@ -194,7 +194,10 @@
 
 (add-to-list 'find-file-not-found-functions #'magnars/create-non-existent-directory)
 
-(server-start)
+;; unless existing server does not exist
+(when (and (fboundp 'server-running-p)
+           (not (server-running-p server-name)))
+  (server-start))
 (global-display-line-numbers-mode 1)
 
 ;; use with ,,<letter>, e.g. `,,g' runs (user/go)
