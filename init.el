@@ -42,7 +42,20 @@
 (elpaca elpaca-use-package
   ;; Enable use-package :ensure support for Elpaca.
   (elpaca-use-package-mode)
- (setq elpaca-use-package-by-default t))
+  (setq elpaca-use-package-by-default t))
+
+(defun +elpaca/build-if-new (e)
+  (setf (elpaca<-build-steps e)
+        (if-let ((default-directory (elpaca<-build-dir e))
+                 (main (ignore-errors (elpaca--main-file e)))
+                 (compiled (expand-file-name (concat (file-name-base main) ".elc")))
+                 ((file-newer-than-file-p main compiled)))
+            (progn (elpaca--signal e "Rebuilding due to source changes")
+                   (cl-set-difference elpaca-build-steps
+                                      '(elpaca--clone elpaca--configure-remotes elpaca--checkout-ref)))
+          (elpaca--build-steps nil (file-exists-p (elpaca<-build-dir e))
+                               (file-exists-p (elpaca<-repo-dir e)))))
+  (elpaca--continue-build e))
 
 ;; (setq use-package-always-ensure t)
 (elpaca-wait)
@@ -65,6 +78,9 @@
 ;; Allow Ctrl-u to scroll up a page like vim
 (setq evil-want-C-u-scroll t)
 (setq evil-want-keybinding nil)
+
+;; set relative file numbers
+(setq display-line-numbers-type 'relative)
 
 ;; (setq warning-minimum-level :error)
 ;; (setq warning-minimum-log-level :error)
@@ -141,6 +157,8 @@
 (use-package magit)
 (use-package org
   :ensure nil
+  :init
+  (setq org-directory "~/projects/org")
   :config
   (require 'org-tempo))
 (use-package org-modern
