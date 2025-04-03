@@ -114,11 +114,11 @@
 (defmacro corgi-use-package (package)
   `(use-package ,package
      :ensure (,package
-              :host github
-              :repo "corgi-emacs/corgi-packages"
+              :repo "~/projects/corgi-packages"
               :local-repo ,(symbol-name package)
               :files (,(concat (symbol-name package) "/" (symbol-name package) ".el"))
-              :branch "ox/separate-completion-ui")))
+	      :build (+elpaca/build-if-new)
+              :branch "main")))
 
 (corgi-use-package corgi-editor)
 (corgi-use-package corgi-commands)
