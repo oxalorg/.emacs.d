@@ -24,11 +24,12 @@
                             :project/switch-buffer projectile-switch-to-buffer
 
                             :jump/identifier counsel-imenu))
- (cider-mode (:eval/outer-sexp-comment cider-eval-defun-to-comment)
+ (prog-mode (:jump/references xref-find-references))
+ (cider-mode (:val/outer-sexp-comment cider-eval-defun-to-comment)
              (:switch-to-from-cider-repl corgi/switch-to-previous-buffer))
  (cider-repl-mode (:switch-to-from-cider-repl corgi/switch-to-previous-buffer))
  (clojure-mode (:switch-to-from-cider-repl ox/cider-switch-to-repl-buffer-same-window-force))
  (js-mode ( :eval/last-sexp js-send-last-sexp
-                            :eval/buffer js-send-buffer
-                            :eval/region js-send-region
-                            :repl/toggle js-comint-start-or-switch-to-repl)))
+            :eval/buffer js-send-buffer
+            :eval/region js-send-region
+            :repl/toggle js-comint-start-or-switch-to-repl)))
