@@ -498,15 +498,24 @@
 (use-package adoc-mode)
 
 (use-package just-mode)
+
 (use-package web-mode
+  ;;   :mode (("\\.js\\'" . web-mode)
+  ;; 	 ("\\.jsx\\'" .  web-mode)
+  ;; 	 ("\\.ts\\'" . web-mode)
+  ;; 	 ("\\.tsx\\'" . web-mode)
+  ;; 	 ("\\.html\\'" . web-mode))
   :config
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
   (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode)))
+
 (use-package dotenv-mode)
-
 (use-package git-timemachine)
-
 (use-package coverlay)
 (use-package origami)
+
 (use-package css-in-js-mode
   :ensure '(css-in-js-mode :type git :host github :repo "orzechowskid/tree-sitter-css-in-js"))
 
