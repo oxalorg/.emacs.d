@@ -744,7 +744,7 @@
 ;;     ))
 
 (setq-default c-default-style "linux")
-(setq-default c-basic-offset 4)
+(setq-default c-basic-offset 2)
 
 ;; ;; (use-package company
 ;; ;;   :disabled t)
