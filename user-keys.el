@@ -51,11 +51,11 @@
 
   ;; ("s" "Jump" avy-goto-char-2)
 
-  ("g" "Goto lsp"
-   ("d" "Find definition" lsp-find-definition)
-   ("r" "Find ref" lsp-find-references)
-   ("D" "Find UI definition" lsp-ui-peek-find-definitions)
-   ("R" "Find ref" lsp-ui-peek-find-references))
+  ;; ("g" "Goto lsp"
+   ;; ("d" "Find definition" lsp-find-definition)
+   ;; ("r" "Find ref" lsp-find-references)
+   ;; ("D" "Find UI definition" lsp-ui-peek-find-definitions)
+   ;; ("R" "Find ref" lsp-ui-peek-find-references))
 
   ("z" "zzzzz"
    ;; ("z" "Fold toggle" evil-toggle-fold)
