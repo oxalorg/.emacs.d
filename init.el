@@ -498,7 +498,9 @@
 (use-package adoc-mode)
 
 (use-package just-mode)
-(use-package web-mode)
+(use-package web-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode)))
 (use-package dotenv-mode)
 
 (use-package git-timemachine)
