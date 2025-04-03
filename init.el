@@ -395,21 +395,22 @@
 ;; screencasts!
 (use-package command-log-mode)
 
-;; (use-package forge
-;;   :after magit
-;;   :config
-;;   (transient-append-suffix 'forge-dispatch '(0)
-;;     ["Forge browse"
-;;      ("@" "browse" forge-browse)])
-;;   (transient-append-suffix 'forge-dispatch '(0)
-;;     ["PR"
-;;      ("p c" "pullreq checkout" forge-checkout-pullreq)]
-;;     )
-;;   (transient-append-suffix 'forge-dispatch '(0)
-;;     ["Edit"
-;;      ("e p" "post" forge-edit-post)
-;;      ("e a" "assignees" forge-edit-topic-assignees)
-;;      ("e r" "review requests" forge-edit-topic-review-requests)]))
+(use-package forge
+  :after magit
+  :config
+  (transient-append-suffix 'forge-dispatch '(0)
+    ["Forge browse"
+     ("@" "browse" forge-browse)])
+  (transient-append-suffix 'forge-dispatch '(0)
+    ["PR"
+     ("p c" "pullreq checkout" forge-checkout-pullreq)]
+    )
+  (transient-append-suffix 'forge-dispatch '(0)
+    ["Edit"
+     ("e p" "post" forge-edit-post)
+     ("e a" "assignees" forge-topic-set-assignees)
+     ("e r" "review requests" forge-topic-set-review-requests)
+     ]))
 
 (use-package git-link
   :config
