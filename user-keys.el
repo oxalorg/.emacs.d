@@ -147,6 +147,7 @@
    ("e" "Evaluate expressions"
     ("d" "Eval defun at point" :eval/outer-sexp)
     ("D" "Eval defun at point to a comment" :eval/outer-sexp-comment)
+    ("t" "Eval defun at point and run test" ox/cider-eval-defun-at-point-and-run-test)
     ("b" "Eval buffer" :eval/buffer)
     ("e" "Eval form before cursor" :eval/last-sexp)
     ("p" "Eval and pretty print" :eval/last-sexp-pprint)
