@@ -497,6 +497,14 @@
 ;; (use-package piglet-emacs)
 (use-package adoc-mode)
 
+;; erlang
+(defvar erlang-root-dir "/opt/homebrew/lib/erlang")
+(defvar erlang-lib-dir (expand-file-name "lib/tools-4.1.1/emacs" erlang-root-dir))
+(setq load-path (cons erlang-lib-dir load-path))
+(require 'erlang-start)
+(setq exec-path (cons (expand-file-name "bin" erlang-root-dir) exec-path))
+(setq erlang-man-root-dir (expand-file-name "man" erlang-root-dir))
+
 (use-package just-mode)
 
 (use-package web-mode
