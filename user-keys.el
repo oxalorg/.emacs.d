@@ -52,10 +52,10 @@
   ;; ("s" "Jump" avy-goto-char-2)
 
   ;; ("g" "Goto lsp"
-   ;; ("d" "Find definition" lsp-find-definition)
-   ;; ("r" "Find ref" lsp-find-references)
-   ;; ("D" "Find UI definition" lsp-ui-peek-find-definitions)
-   ;; ("R" "Find ref" lsp-ui-peek-find-references))
+  ;; ("d" "Find definition" lsp-find-definition)
+  ;; ("r" "Find ref" lsp-find-references)
+  ;; ("D" "Find UI definition" lsp-ui-peek-find-definitions)
+  ;; ("R" "Find ref" lsp-ui-peek-find-references))
 
   ("z" "zzzzz"
    ;; ("z" "Fold toggle" evil-toggle-fold)
@@ -115,6 +115,10 @@
     ("f" "Harpoon toogle file" harpoon-toggle-file)
     ("a" "Harpoon add file" harpoon-add-file)
     ("c" "Harpoon clear" harpoon-clear)
+    )
+
+   ("l" "lsp"
+    ("l" "lsp inline completion" lsp-inline-completion-display)
     )
 
    ("p" "projectile"
