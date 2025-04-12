@@ -352,8 +352,6 @@
   (setq-default evil-escape-key-sequence "qp")
   (evil-escape-mode))
 
-(describe-variable 'prog-mode-hook)
-
 (use-package evil-cleverparens
   :after (evil)
   :commands evil-cleverparens-mode
@@ -494,7 +492,8 @@
     (when (or (string-match-p (concat "cider-repl projects/" (projectile-project-name) ":localhost") (buffer-name buffer)))
       (kill-buffer buffer))))
 
-;; (use-package piglet-emacs)
+(use-package piglet-emacs
+  :ensure (piglet-emacs :repo "~/projects/piglet-emacs"))
 (use-package adoc-mode)
 
 ;; erlang
@@ -685,6 +684,12 @@
   :ensure t
   :init (global-flycheck-mode))
 
+(use-package flycheck-rust
+  :ensure t
+  :config
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+  )
+
 ;; ;; (define-key input-decode-map (kbd "M-v") 'my-paste-from-clipboard)
 ;; ;; (defun my-paste-from-clipboard ()
 ;; ;;   "Paste from clipboard in Evil normal and insert modes."
@@ -769,6 +774,7 @@
   (setq lsp-copilot-applicable-fn
 	(lambda (buf-name buf-mode)
           (pcase buf-mode
+	    ('erlang-mode t)
             ('c-mode t)
             ('go-mode t)
             ('emacs-lisp-mode t)
