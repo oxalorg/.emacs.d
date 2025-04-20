@@ -707,10 +707,12 @@
          ;; (clojurec-mode . lsp)
          ;; (clojurescript-mode . lsp)
 	 ;; (typescript-ts-mode . lsp)
-	 (web-mode . lsp)
 	 (lsp-mode . lsp-diagnostics-mode)
          (lsp-mode . lsp-enable-which-key-integration)
          ((tsx-ts-mode
+	   web-mode
+	   sh-mode
+	   bash-ts-mode
            typescript-ts-mode
            js-ts-mode) . lsp-deferred)
 	 )
