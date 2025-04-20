@@ -4,27 +4,46 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("f6665ce2f7f56c5ed5d91ed5e7f6acb66ce44d0ef4acfaa3a42c7cfe9e9a9013" "d6844d1e698d76ef048a53cefe713dbbe3af43a1362de81cdd3aefa3711eae0d" "1d5e33500bc9548f800f9e248b57d1b2a9ecde79cb40c0b1398dec51ee820daf" "c5ded9320a346146bbc2ead692f0c63be512747963257f18cc8518c5254b7bf5" "d47f868fd34613bd1fc11721fe055f26fd163426a299d45ce69bef1f109e1e71" "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae" "a9a67b318b7417adbedaab02f05fa679973e9718d9d26075c6235b1f0db703c8" "2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643" default))
+   '("2aa073a18b2ba860d24d2cd857bcce34d7107b6967099be646d9c95f53ef3643"
+     "234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6"
+     "1d5e33500bc9548f800f9e248b57d1b2a9ecde79cb40c0b1398dec51ee820daf"
+     "1704976a1797342a1b4ea7a75bdbb3be1569f4619134341bd5a4c1cfb16abad4"
+     "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae"
+     default))
+ '(package-selected-packages
+   '(all-the-icons avy cider command-log-mode counsel-projectile csv-mode
+		   doom-modeline doom-themes evil-collection flycheck
+		   forge general git-commit helpful hydra ivy-rich
+		   magit-section orderless org-bullets org-journal
+		   popper rainbow-delimiters use-package
+		   visual-fill-column which-key yasnippet))
  '(safe-local-variable-values
-   '((checkdoc-package-keywords-flag)
-     (cider-refresh-after-fn . "reloaded.repl/resume")
-     (cider-refresh-before-fn . "reloaded.repl/suspend")
-     (eval define-clojure-indent
-           (reg-cofx :defn)
-           (reg-event-db :defn)
-           (reg-event-fx :defn)
-           (reg-fx :defn)
-           (reg-sub :defn)
-           (reg-event-domain :defn)
-           (reg-block-event-fx :defn)
-           (reg-event-domain-fx :defn)
-           (this-as 0))
-     (eval define-clojure-indent
-           (assoc 0)
-           (ex-info 0))
+   '((projectile-test-suffix . "_test")
+     (eval with-eval-after-load 'clojure-mode
+	   (define-clojure-indent (assoc 0) (ex-info 0)))
      (eval progn
-           (make-variable-buffer-local 'cider-jack-in-nrepl-middlewares)
-           (add-to-list 'cider-jack-in-nrepl-middlewares "shadow.cljs.devtools.server.nrepl/middleware"))
+	   (setenv "OTEL_EXPORTER_OTLP_HEADERS"
+		   "x-honeycomb-team=0h2EYmxmhbiGe4tfm6W6wH,x-honeycomb-dataset=grid-metrics")
+	   (make-variable-buffer-local
+	    'cider-jack-in-nrepl-middlewares)
+	   (add-to-list 'cider-jack-in-nrepl-middlewares
+			"shadow.cljs.devtools.server.nrepl/middleware"))
+     (eval define-clojure-indent (reg-cofx :defn) (reg-event-db :defn)
+	   (reg-event-fx :defn) (reg-fx :defn) (reg-sub :defn)
+	   (reg-event-domain :defn) (reg-block-event-fx :defn)
+	   (reg-event-domain-fx :defn) (this-as 0))
+     (eval define-clojure-indent (for! 1) (assoc 0) (ex-info 0))
+     (eval define-clojure-indent (for! 0) (assoc 0) (ex-info 0))
+     (eval define-clojure-indent (for! 2) (assoc 0) (ex-info 0))
+     (cider-auto-track-ns-form-changes)
+     (eval progn (make-local-variable 'process-environment)
+	   (setenv "XTDB_ENABLE_BYTEUTILS_SHA1" "true"))
+     (eval define-clojure-indent (assoc 0) (ex-info 0))
+     (eval progn
+	   (make-variable-buffer-local
+	    'cider-jack-in-nrepl-middlewares)
+	   (add-to-list 'cider-jack-in-nrepl-middlewares
+			"shadow.cljs.devtools.server.nrepl/middleware"))
      (cider-repl-display-help-banner))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
