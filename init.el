@@ -380,7 +380,10 @@
 (use-package projectile
   :init
   (setq projectile-create-missing-test-files t)
-  (setq projectile-project-search-path '("~/projects/" "~/playground/" "~/projects/lambdaisland"))
+  (setq projectile-project-search-path '("~/projects/"
+					 "~/playground/"
+					 "~/projects/lambdaisland"
+					 "~/projects/gaiwanteam"))
   (defun ox/refresh-projects-dir ()
     (interactive)
     ;; (projectile-discover-projects-in-directory "~/projects")
