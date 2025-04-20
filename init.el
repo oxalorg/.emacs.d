@@ -771,10 +771,13 @@
                clojurescript-mode
                clojurex-mode))
     (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
+  (setq bash-allowed-shells '(sh bash zsh))
   (setq lsp-copilot-applicable-fn
 	(lambda (buf-name buf-mode)
           (pcase buf-mode
 	    ('erlang-mode t)
+	    ('bash-ts-mode t)
+	    ('sh-mode t)
             ('c-mode t)
             ('go-mode t)
             ('emacs-lisp-mode t)
