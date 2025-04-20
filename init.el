@@ -905,7 +905,7 @@
   :ensure nil
   :hook
   (go-ts-mode . lsp-deferred)
-  (go-ts-mode . go-format-on-save-mode)
+  ;; (go-ts-mode . go-format-on-save-mode)
   :init
   (add-to-list 'treesit-language-source-alist '(go "https://github.com/tree-sitter/tree-sitter-go"))
   (add-to-list 'treesit-language-source-alist '(gomod "https://github.com/camdencheek/tree-sitter-go-mod"))
