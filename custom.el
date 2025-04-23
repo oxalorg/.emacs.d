@@ -16,9 +16,27 @@
 		   forge general git-commit helpful hydra ivy-rich
 		   magit-section orderless org-bullets org-journal
 		   popper rainbow-delimiters use-package
-		   visual-fill-column which-key yasnippet))
+		   visual-fill-column which-key yasnippet
+		   yasnippet-snippets))
  '(safe-local-variable-values
-   '((projectile-test-suffix . "_test")
+   '((elisp-lint-indent-specs (if-let* . 2) (when-let* . 1)
+			      (let* . defun)
+			      (nrepl-dbind-response . 2)
+			      (cider-save-marker . 1)
+			      (cider-propertize-region . 1)
+			      (cider-map-repls . 1)
+			      (cider--jack-in . 1)
+			      (cider--make-result-overlay . 1)
+			      (insert-label . defun)
+			      (insert-align-label . defun)
+			      (insert-rect . defun) (cl-defun . 2)
+			      (with-parsed-tramp-file-name . 2)
+			      (thread-first . 0) (thread-last . 0)
+			      (transient-define-prefix . defmacro)
+			      (transient-define-suffix . defmacro))
+     (cider-ns-refresh-after-fn . "integrant.repl/resume")
+     (cider-ns-refresh-before-fn . "integrant.repl/suspend")
+     (projectile-test-suffix . "_test")
      (eval with-eval-after-load 'clojure-mode
 	   (define-clojure-indent (assoc 0) (ex-info 0)))
      (eval progn

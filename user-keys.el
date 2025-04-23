@@ -36,6 +36,9 @@
  (normal|visual
   ;; ("I" "Start insert on forms" evil-cp-insert-at-beginning-of-form)
   ("\\" "emacs mode" evil-execute-in-emacs-state)
+  ("*" "search word swap" evil-search-unbounded-word-forward)
+  ("g"
+   ("*" "search word swap" evil-search-word-forward))
 
   ("[" "unimpared behind"
    ("c" "Prev hunk of git change" git-gutter:previous-hunk)
@@ -50,6 +53,7 @@
   ("<backspace>" "Switch to previous buffer" corgi/switch-to-previous-buffer)
 
   ;; ("s" "Jump" avy-goto-char-2)
+
 
   ;; ("g" "Goto lsp"
   ;; ("d" "Find definition" lsp-find-definition)
@@ -88,6 +92,9 @@
    ("c" "clojure"
     ("a" "add arity" clojure-add-arity)
     ("c" "Recompile" recompile))
+
+   ("d" "docs for now"
+    ("c" "clojuredocs" clojuredocs-lookup))
 
    ("f"
     ("f" "Projectile file" projectile-find-file)

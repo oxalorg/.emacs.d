@@ -25,7 +25,7 @@
 
                             :jump/identifier counsel-imenu))
  (prog-mode (:jump/references xref-find-references))
- (cider-mode (:val/outer-sexp-comment cider-eval-defun-to-comment)
+ (cider-mode (:eval/outer-sexp-comment cider-eval-defun-to-comment)
              (:switch-to-from-cider-repl corgi/switch-to-previous-buffer))
  (cider-repl-mode (:switch-to-from-cider-repl corgi/switch-to-previous-buffer))
  (clojure-mode (:switch-to-from-cider-repl ox/cider-switch-to-repl-buffer-same-window-force))

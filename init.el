@@ -82,6 +82,10 @@
 ;; set relative file numbers
 (setq display-line-numbers-type 'relative)
 
+(setq visible-bell 1)
+(setq find-file-visit-truename t)
+(setq vc-follow-symlinks t)
+(setopt use-short-answers t)
 ;; (setq warning-minimum-level :error)
 ;; (setq warning-minimum-log-level :error)
 
@@ -171,6 +175,8 @@
         org-journal-date-format "%Y-%m-%d, %a"
         org-journal-file-format "%Y-%m.org"
         org-journal-time-format ""))
+(use-package org-download
+  :after (org))
 (use-package markdown-mode)
 (use-package yaml-mode)
 (use-package hcl-mode)
@@ -204,7 +210,7 @@
 (set-register ?k "#_clj (do (require 'kaocha.repl) (kaocha.repl/run))")
 (set-register ?K "#_clj (do (require 'kaocha.repl) (kaocha.repl/run-all))")
 (set-register ?r "#_clj (do (require 'user :reload) (user/reset))")
-(set-register ?t "#_clj (do (require 'clojure.test) (clojure.test/run-tests {{(cider-current-ns)}}))")
+(set-register ?t "#_clj (do (require 'clojure.test) (println \"{{(cider-current-ns)}}\") (clojure.test/run-tests {{(cider-current-ns)}}))")
 (set-register ?t "#_clj (do (require 'clojure.test) (clojure.test/run-tests")
 (set-register ?T "#_clj (do (require 'clojure.test) (clojure.test/run-all-tests))")
 (set-register ?g "#_clj (user/go)")
@@ -578,6 +584,28 @@
             t)
   )
 
+;; Add extensions
+(use-package cape
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  ;; (add-hook 'completion-at-point-functions #'cape-history)
+  ;; ...
+  )
+
 ;; A few more useful configurations...
 (use-package emacs
   :ensure nil
@@ -676,8 +704,12 @@
 
 (use-package orderless
   :ensure t
+  :init
+  (setq completion-styles '(orderless partial-completion basic)
+        completion-category-defaults nil
+        completion-category-overrides nil)
   :custom
-  (completion-styles '(orderless basic))
+  (completion-styles '(orderless partial-completion basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
 ;; ;; Define a function to paste text
@@ -705,6 +737,17 @@
 ;; ;;         (evil-normal-state)
 ;; ;;         (evil-paste-after))
 ;; ;;     (yank)))
+
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
+
+(use-package yasnippet-snippets)
+
+(use-package yasnippet-capf
+  :after cape
+  :config
+  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
 
 (use-package lsp-mode
   :ensure t
@@ -848,9 +891,6 @@
 
 (setq-default c-default-style "linux")
 (setq-default c-basic-offset 2)
-
-;; ;; (use-package company
-;; ;;   :disabled t)
 
 (use-package cider
   :after '(evil)
@@ -1074,6 +1114,14 @@ mismatched parens are changed based on the left one."
   (interactive)
   (let ((last-command-event ?\())
     (call-interactively (key-binding ")"))))
+
+
+;; https://web.archive.org/web/20150713053259/http://www.archivum.info/comp.emacs/2007-06/00348/Re-Ignore-%5EM-in-mixed-(LF-and-CR+LF)-line-ended-textfiles.html
+(defun ox/remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
 
 ;; (use-package evil-swap-keys
 ;;   :after (evil)
