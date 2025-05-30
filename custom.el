@@ -11,15 +11,16 @@
      "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae"
      default))
  '(package-selected-packages
-   '(all-the-icons avy cider command-log-mode counsel-projectile csv-mode
-		   doom-modeline doom-themes evil-collection flycheck
-		   forge general git-commit helpful hydra ivy-rich
-		   magit-section orderless org-bullets org-journal
-		   popper rainbow-delimiters use-package
-		   visual-fill-column which-key yasnippet
-		   yasnippet-snippets))
+   '(aidermacs all-the-icons avy cider command-log-mode
+	       counsel-projectile csv-mode doom-modeline doom-themes
+	       evil-collection flycheck forge general git-commit
+	       helpful hydra ivy-rich magit-section orderless
+	       org-bullets org-journal popper rainbow-delimiters
+	       use-package visual-fill-column which-key yasnippet
+	       yasnippet-snippets))
  '(safe-local-variable-values
-   '((elisp-lint-indent-specs (if-let* . 2) (when-let* . 1)
+   '((cider-save-file-on-load)
+     (elisp-lint-indent-specs (if-let* . 2) (when-let* . 1)
 			      (let* . defun)
 			      (nrepl-dbind-response . 2)
 			      (cider-save-marker . 1)

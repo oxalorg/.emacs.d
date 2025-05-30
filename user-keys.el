@@ -37,8 +37,13 @@
   ;; ("I" "Start insert on forms" evil-cp-insert-at-beginning-of-form)
   ("\\" "emacs mode" evil-execute-in-emacs-state)
   ("*" "search word swap" evil-search-unbounded-word-forward)
-  ("g"
-   ("*" "search word swap" evil-search-word-forward))
+  ("g" "goto"
+   ("*" "search word swap" evil-search-word-forward)
+   ("d" "Find definition" lsp-find-definition)
+   ("r" "Find ref" lsp-find-references)
+   ("D" "Find UI definition" lsp-ui-peek-find-definitions)
+   ("R" "Find ref" lsp-ui-peek-find-references)
+   )
 
   ("[" "unimpared behind"
    ("c" "Prev hunk of git change" git-gutter:previous-hunk)
@@ -54,12 +59,6 @@
 
   ;; ("s" "Jump" avy-goto-char-2)
 
-
-  ;; ("g" "Goto lsp"
-  ;; ("d" "Find definition" lsp-find-definition)
-  ;; ("r" "Find ref" lsp-find-references)
-  ;; ("D" "Find UI definition" lsp-ui-peek-find-definitions)
-  ;; ("R" "Find ref" lsp-ui-peek-find-references))
 
   ("z" "zzzzz"
    ;; ("z" "Fold toggle" evil-toggle-fold)
@@ -91,6 +90,7 @@
 
    ("c" "clojure"
     ("a" "add arity" clojure-add-arity)
+    ("p" "run python" ox/run-python-on-current-file)
     ("c" "Recompile" recompile))
 
    ("d" "docs for now"
