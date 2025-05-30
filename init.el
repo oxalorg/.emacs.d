@@ -1086,6 +1086,21 @@
         (switch-to-buffer repl)
       (switch-to-buffer (cider-current-repl 'any 'ensure)))))
 
+(defun ox/run-python-on-current-file ()
+  "Save and run `python3` on the current buffer's file."
+  (interactive)
+  (when buffer-file-name
+    (save-buffer)
+    (compile (format "python3 %s" (shell-quote-argument buffer-file-name)))))
+
+(defun ox/save-buffer-before-recompile (&rest _)
+  "Save the current buffer before `recompile`."
+  (when (buffer-file-name)
+    (save-buffer)))
+
+(advice-add 'recompile :before #'ox/save-buffer-before-recompile)
+
+
 (defun ox/toggle-parens--replace (pair start end)
   "Replace parens with a new PAIR at START and END in current buffer.
    A helper function for `toggle-parens'."
