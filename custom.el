@@ -10,14 +10,22 @@
      "1704976a1797342a1b4ea7a75bdbb3be1569f4619134341bd5a4c1cfb16abad4"
      "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae"
      default))
- '(package-selected-packages
-   '(aidermacs all-the-icons avy cider command-log-mode
-	       counsel-projectile csv-mode doom-modeline doom-themes
-	       evil-collection flycheck forge general git-commit
-	       helpful hydra ivy-rich magit-section orderless
-	       org-bullets org-journal popper rainbow-delimiters
-	       use-package visual-fill-column which-key yasnippet
-	       yasnippet-snippets))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((corgi-bindings :url
+		     "https://github.com/corgi-emacs/corgi-packages.git"
+		     :lisp-dir "corgi-bindings/")
+     (pprint-to-buffer :url "https://github.com/plexus/plexmacs.git"
+		       :lisp-dir "pprint-to-buffer/")
+     (tsx-mode :url "https://github.com/orzechowskid/tsx-mode.el.git")
+     (css-in-js-mode :url
+		     "https://github.com/orzechowskid/tree-sitter-css-in-js.git")
+     (html-to-hiccup :url
+		     "https://github.com/plexus/html-to-hiccup.git")
+     (corkey :url "https://github.com/corgi-emacs/corkey.git")
+     (clj-ns-name :url
+		  "https://github.com/corgi-emacs/clj-ns-name.git")
+     (walkclj :url "https://github.com/corgi-emacs/walkclj.git")))
  '(safe-local-variable-values
    '((cider-save-file-on-load)
      (elisp-lint-indent-specs (if-let* . 2) (when-let* . 1)
