@@ -426,6 +426,8 @@
   (setq git-link-open-in-browser t
         git-link-use-commit t))
 
+(use-package vundo)
+
 ;; Configure common Emoji fonts, making it more likely that Emoji will work out of the box
 (set-fontset-font t 'symbol "Apple Color Emoji")
 (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
