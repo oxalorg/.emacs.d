@@ -210,8 +210,7 @@
 (set-register ?k "#_clj (do (require 'kaocha.repl) (kaocha.repl/run))")
 (set-register ?K "#_clj (do (require 'kaocha.repl) (kaocha.repl/run-all))")
 (set-register ?r "#_clj (do (require 'user :reload) (user/reset))")
-(set-register ?t "#_clj (do (require 'clojure.test) (println \"{{(cider-current-ns)}}\") (clojure.test/run-tests {{(cider-current-ns)}}))")
-(set-register ?t "#_clj (do (require 'clojure.test) (clojure.test/run-tests")
+(set-register ?t "#_clj (do (require 'clojure.test) (clojure.test/run-tests '{{(cider-current-ns)}}))")
 (set-register ?T "#_clj (do (require 'clojure.test) (clojure.test/run-all-tests))")
 (set-register ?g "#_clj (user/go)")
 (set-register ?b "#_clj (user/browse)")
@@ -319,8 +318,8 @@
   (find-file (expand-file-name "init.el" user-emacs-directory)))
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar ox/default-font-size 160)
-(defvar ox/default-variable-font-size 160)
+(defvar ox/default-font-size 200)
+(defvar ox/default-variable-font-size 200)
 (set-face-attribute 'default nil :font "Iosevka" :height ox/default-font-size)
 (set-face-attribute 'fixed-pitch nil :font "Iosevka" :height ox/default-font-size)
 
