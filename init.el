@@ -888,6 +888,13 @@
   :after (treemacs evil lsp-mode)
   :ensure t)
 
+(use-package gptel)
+
+(use-package aidermacs
+  :bind (("C-c a" . aidermacs-transient-menu))
+  :custom
+  (aidermacs-use-architect-mode t)
+  (aidermacs-default-model "gpt-4o-mini"))
 
 ;; ;; (add-hook 'evil-insert-state-entry-hook (lambda () (send-string-to-terminal "\033[5 q")))                                                                                    (add-hook 'evil-normal-state-entry-hook (lambda () (send-string-to-terminal "\033[0 q")))
 
