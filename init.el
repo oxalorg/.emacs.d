@@ -949,9 +949,10 @@
 
 (use-package devdocs)
 
-(with-eval-after-load 'require
-  (add-to-list 'load-path (expand-file-name "~/projects/clojuredocs.el"))
-  (require 'clojuredocs))
+(use-package clojuredocs
+  :ensure nil
+  :load-path "~/projects/clojuredocs.el"
+  :after request)
 
 (use-package difftastic
   :demand t
