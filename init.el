@@ -1,64 +1,17 @@
-(setq package-enable-at-startup nil)
-(defvar elpaca-installer-version 0.9)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1 :inherit ignore
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                  ,@(when-let* ((depth (plist-get order :depth)))
-                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                  ,(plist-get order :repo) ,repo))))
-                  ((zerop (call-process "git" nil buffer t "checkout"
-                                        (or (plist-get order :ref) "--"))))
-                  (emacs (concat invocation-directory invocation-name))
-                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                  ((require 'elpaca))
-                  ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
+;; Initialize package.el
+(require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+(package-initialize)
 
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable use-package :ensure support for Elpaca.
-  (elpaca-use-package-mode)
-  (setq elpaca-use-package-by-default t))
+;; Ensure use-package is installed
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-(defun +elpaca/build-if-new (e)
-  (setf (elpaca<-build-steps e)
-        (if-let ((default-directory (elpaca<-build-dir e))
-                 (main (ignore-errors (elpaca--main-file e)))
-                 (compiled (expand-file-name (concat (file-name-base main) ".elc")))
-                 ((file-newer-than-file-p main compiled)))
-            (progn (elpaca--signal e "Rebuilding due to source changes")
-                   (cl-set-difference elpaca-build-steps
-                                      '(elpaca--clone elpaca--configure-remotes elpaca--checkout-ref)))
-          (elpaca--build-steps nil (file-exists-p (elpaca<-build-dir e))
-                               (file-exists-p (elpaca<-repo-dir e)))))
-  (elpaca--continue-build e))
-
-;; (setq use-package-always-ensure t)
-(elpaca-wait)
+(require 'use-package)
+(setq use-package-always-ensure t)
 
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file 'noerror)
@@ -86,67 +39,84 @@
 (setq find-file-visit-truename t)
 (setq vc-follow-symlinks t)
 (setopt use-short-answers t)
-;; (setq warning-minimum-level :error)
-;; (setq warning-minimum-log-level :error)
+(setq byte-compile-warnings '(not obsolete))
+
+;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
+(use-package exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  (fset 'evil-visual-update-x-selection 'ignore)
+  (setq evil-kill-on-visual-paste nil)
+  (setq-default evil-symbol-word-search t)
+  :config
+  (evil-mode t)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (require 'evil-maps)
+  (define-key evil-motion-state-map "L" nil)
+  (define-key evil-motion-state-map "M" nil)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
 
 (message "[ox] Loading corgi")
 
 ;; Loading corgi deps
-(use-package clj-ns-name
-  :ensure (clj-ns-name
-	   :type git
-	   :host github
-	   :files ("clj-ns-name.el")
-	   :repo "corgi-emacs/clj-ns-name"))
+(use-package projectile
+  :init
+  (setq projectile-create-missing-test-files t)
+  (setq projectile-project-search-path '("~/projects/"
+					 "~/playground/"
+					 "~/projects/lambdaisland"
+					 "~/projects/gaiwanteam"))
+  (defun ox/refresh-projects-dir ()
+    (interactive)
+    ;; (projectile-discover-projects-in-directory "~/projects")
+    (projectile-discover-projects-in-search-path))
+  :config
+  (projectile-global-mode))
 
 (use-package walkclj
-  :ensure
-  (walkclj
-   :type git
-   :host github
-   :files ("walkclj.el")
-   :repo "corgi-emacs/walkclj"))
+  :vc (:url "https://github.com/corgi-emacs/walkclj.git" :rev :newest))
+
+(use-package clj-ns-name
+  :after (projectile walkclj)
+  :vc (:url "https://github.com/corgi-emacs/clj-ns-name.git" :rev :newest))
 
 (use-package pprint-to-buffer
-  :ensure
-  (pprint-to-buffer
-   :type git
-   :host github
-   :files ("pprint-to-buffer/pprint-to-buffer.el")
-   :repo "plexus/plexmacs"))
+  :vc (:url "https://github.com/plexus/plexmacs.git" :rev :newest
+	    :lisp-dir "pprint-to-buffer/"))
 
 (defmacro corgi-use-package (package)
   `(use-package ,package
-     :ensure (,package
-              :repo "~/projects/corgi-packages"
-              :local-repo ,(symbol-name package)
-              :files (,(concat (symbol-name package) "/" (symbol-name package) ".el"))
-	      :build (+elpaca/build-if-new)
-              :branch "main")))
+     :load-path ,(concat "~/projects/corgi-packages/" (symbol-name package) "/")))
 
 (corgi-use-package corgi-editor)
 (corgi-use-package corgi-commands)
 (corgi-use-package corgi-clojure)
 (corgi-use-package corgi-emacs-lisp)
 (corgi-use-package corgi-stateline)
-(use-package corgi-bindings
-  :ensure
-  (corgi-bindings
-   :type git
-   :host github
-   :branch "main"
-   :files ("corgi-bindings/corgi-bindings.el"
-           "corgi-bindings/corgi-keys.el"
-           "corgi-bindings/corgi-signals.el"
-           "corgi-bindings/user-keys-template.el"
-           "corgi-bindings/user-signals-template.el")
-   :repo "corgi-emacs/corgi-packages"))
+(corgi-use-package corgi-bindings)
+;; (use-package corgi-bindings
+;;   :vc (:url "https://github.com/corgi-emacs/corgi-packages.git" :rev :newest
+;; 	    :lisp-dir "corgi-bindings/"))
 
 (use-package corkey
-  :ensure (corkey
-           :type git
-           :host github
-           :repo "corgi-emacs/corkey")
+  :vc (:url "https://github.com/corgi-emacs/corkey.git" :rev :newest)
   :config
   (corkey-mode 1)
   (corkey/reload))
@@ -297,9 +267,6 @@
 ;;         (cons "deps.edn"
 ;;               projectile-project-root-files-bottom-up)))
 
-;; Allow Ctrl-u to scroll up a page like vim
-(setq evil-want-C-u-scroll t)
-
 ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
 ;; that you can always see what's happening.
 (setq eval-expression-print-level nil)
@@ -322,37 +289,6 @@
 (defvar ox/default-variable-font-size 200)
 (set-face-attribute 'default nil :font "Iosevka" :height ox/default-font-size)
 (set-face-attribute 'fixed-pitch nil :font "Iosevka" :height ox/default-font-size)
-
-;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
-(use-package exec-path-from-shell
-  :config
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
-
-(use-package evil
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  (fset 'evil-visual-update-x-selection 'ignore)
-  (setq evil-kill-on-visual-paste nil)
-  (setq-default evil-symbol-word-search t)
-  :config
-  (evil-mode t)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-
-  ;; Use visual line motions even outside of visual-line-mode buffers
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-
-  (require 'evil-maps)
-  (define-key evil-motion-state-map "L" nil)
-  (define-key evil-motion-state-map "M" nil)
-
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
 
 ;; Use another key to go into normal / escape mode. I have it configured as `qp`
 (use-package evil-escape
@@ -384,20 +320,6 @@
   :ensure t
   :config
   (evil-collection-init))
-
-(use-package projectile
-  :init
-  (setq projectile-create-missing-test-files t)
-  (setq projectile-project-search-path '("~/projects/"
-					 "~/playground/"
-					 "~/projects/lambdaisland"
-					 "~/projects/gaiwanteam"))
-  (defun ox/refresh-projects-dir ()
-    (interactive)
-    ;; (projectile-discover-projects-in-directory "~/projects")
-    (projectile-discover-projects-in-search-path))
-  :config
-  (projectile-global-mode))
 
 ;; command-log-mode is useful for displaying a panel showing each key binding
 ;; you use in a panel on the right side of the frame. Great for live streams and
@@ -444,7 +366,7 @@
   (setq default-text-scale-amount 20))
 
 (use-package html-to-hiccup
-  :ensure (:host github :repo "plexus/html-to-hiccup"))
+  :vc (:url "https://github.com/plexus/html-to-hiccup.git" :rev :newest))
 
 (message "loading secrets...")
 (load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
@@ -505,8 +427,8 @@
     (when (or (string-match-p (concat "cider-repl projects/" (projectile-project-name) ":localhost") (buffer-name buffer)))
       (kill-buffer buffer))))
 
-(use-package piglet-emacs
-  :ensure (piglet-emacs :repo "~/projects/piglet-emacs"))
+;; (use-package piglet-emacs
+;;   :load-path "~/projects/piglet-emacs")
 (use-package adoc-mode)
 
 ;; erlang
@@ -537,7 +459,7 @@
 (use-package origami)
 
 (use-package css-in-js-mode
-  :ensure '(css-in-js-mode :type git :host github :repo "orzechowskid/tree-sitter-css-in-js"))
+  :vc (:url "https://github.com/orzechowskid/tree-sitter-css-in-js.git" :rev :newest))
 
 (use-package corfu
   ;; Optional customizations
@@ -630,7 +552,7 @@
 (use-package wgrep)
 
 (use-package tsx-mode
-  :ensure '(tsx-mode :type git :host github :repo "orzechowskid/tsx-mode.el"))
+  :vc (:url "https://github.com/orzechowskid/tsx-mode.el.git" :rev :newest))
 
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
