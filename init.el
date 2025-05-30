@@ -807,7 +807,7 @@
   (lsp-ui-doc-use-childframe t)              ; Show docs for symbol at point
   (lsp-eldoc-render-all nil)            ; This would be very useful if it would respect `lsp-signature-doc-lines', currently it's distracting
   ;; lens
-  (lsp-lens-enable nil)                 ; Optional, I don't need it
+  (lsp-lens-enable t)
   ;; semantic
   (lsp-semantic-tokens-enable nil)      ; Related to highlighting, and we defer to treesitter
   :init
@@ -823,6 +823,10 @@
                clojurescript-mode
                clojurex-mode))
     (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
+  ;; (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+  ;; (setq xref-show-xrefs-function #'xref-show-definitions-completing-read)
+  (setq xref-show-definitions-function #'consult-xref)
+  (setq xref-show-xrefs-function #'consult-xref)
   (setq bash-allowed-shells '(sh bash zsh))
   (setq lsp-copilot-applicable-fn
 	(lambda (buf-name buf-mode)
@@ -855,6 +859,15 @@
         lsp-ui-doc-include-signature t       ; Show signature
         lsp-ui-doc-position 'at-point)
   )
+
+(use-package consult-lsp)
+
+(defun consult-lsp-references ()
+  "Consult interface for `lsp-find-references`."
+  (interactive)
+  (consult-lsp--pick-location
+   (lsp-request "textDocument/references"
+                (lsp--text-document-position-params))))
 
 (use-package treemacs
   :ensure t
