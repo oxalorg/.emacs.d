@@ -117,6 +117,7 @@
 
    ("j" "Journal / jump"
     ("j" "journal" org-journal-new-entry)
+    ("o" "journal open" ox/journal-open-dir)
     ("d" "Discord log" ox/journal-discord-gaiwan)
     ("s" "slack log" ox/journal-slack-gaiwan)
     ("f" "Harpoon toogle file" harpoon-toggle-file)

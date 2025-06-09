@@ -367,6 +367,12 @@
 (load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
 (message "secrets loaded")
 
+(defun ox/journal-open-dir ()
+  "Open the ~/projects/org directory using Projectile."
+  (interactive)
+  (projectile-with-default-dir "~/projects/org"
+    (projectile-find-file)))
+
 (defun send-discord-message-with-webhook (webhook-url message)
   "Send a message to a Discord channel using a webhook URL."
   (request webhook-url
