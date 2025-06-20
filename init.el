@@ -36,6 +36,14 @@
 (setopt use-short-answers t)
 (setq byte-compile-warnings '(not obsolete))
 
+(setq trash-directory "~/.Trash")
+
+;; See `trash-directory' as it requires defining `system-move-file-to-trash'.
+(defun system-move-file-to-trash (file)
+  "Use \"trash\" to move FILE to the system trash."
+  (cl-assert (executable-find "trash") nil "'trash' must be installed. Needs \"brew install trash\"")
+  (call-process "trash" nil 0 nil "-F"  file))
+
 ;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
 (use-package exec-path-from-shell
   :config
@@ -141,8 +149,14 @@
         org-journal-file-format "%Y-%m.org"
         org-journal-time-format ""))
 (use-package org-download
-  :after (org))
-(use-package markdown-mode)
+  :after org
+  :config
+  (setq org-download-method 'directory
+        org-download-image-dir "media"
+        org-download-heading-lvl nil  ;; Don't nest by headline
+        org-download-timestamp "%Y-%m-%d_%H-%M-%S"
+        org-download-screenshot-method "pngpaste %s") ;; macOS clipboard
+  (add-hook 'dired-mode-hook 'org-download-enable))
 (use-package yaml-mode)
 (use-package hcl-mode)
 (use-package typescript-mode)
