@@ -493,8 +493,8 @@ or \\[markdown-toggle-inline-images]."
   (let* ((message (read-string "Enter message: ")))
     (send-slack-message-with-webhook discord-slack-journal-webhook-url message)))
 
-;; (use-package clockify
-;;   :load-path "~/projects/emacs-clockify")
+(use-package clockify
+  :load-path "~/projects/emacs-clockify")
 
 ;; Usage example: M-x send-discord-message
 
