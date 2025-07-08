@@ -511,9 +511,14 @@ or \\[markdown-toggle-inline-images]."
     (when (or (string-match-p (concat "cider-repl projects/" (projectile-project-name) ":localhost") (buffer-name buffer)))
       (kill-buffer buffer))))
 
-;; (use-package piglet-emacs
-;;   :load-path "~/projects/piglet-emacs")
+(use-package websocket)
+(use-package piglet-emacs
+  :ensure nil
+  :after '(websocket)
+  :load-path "~/projects/piglet-emacs")
 (use-package adoc-mode)
+(require 'piglet-emacs)
+
 
 ;; erlang
 (defvar erlang-root-dir "/opt/homebrew/lib/erlang")
