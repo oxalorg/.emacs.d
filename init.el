@@ -159,6 +159,20 @@
         org-download-timestamp "%Y-%m-%d_%H-%M-%S"
         org-download-screenshot-method "pngpaste %s") ;; macOS clipboard
   (add-hook 'dired-mode-hook 'org-download-enable))
+(use-package writeroom-mode)
+(use-package darkroom
+  :hook ((darkroom-mode . ox/darkroom-toggle-line-numbers)
+	 (darkroom-tentative-mode . ox/darkroom-toggle-line-numbers))
+  :config
+  (defun ox/darkroom-toggle-line-numbers ()
+    "Disable line numbers when entering `darkroom-mode', restore them on exit."
+    (if darkroom-mode
+	(progn
+          (setq-local ox/darkroom--line-numbers-were
+                      (bound-and-true-p display-line-numbers))
+          (display-line-numbers-mode 0))
+      (when (bound-and-true-p ox/darkroom--line-numbers-were)
+	(display-line-numbers-mode 1)))))
 (use-package yaml-mode)
 (use-package hcl-mode)
 (use-package typescript-mode)
