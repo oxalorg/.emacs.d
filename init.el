@@ -1192,16 +1192,153 @@ mismatched parens are changed based on the left one."
 ;; (kbd ")") (lambda () (interactive) (insert "0"))
 ;; )
 
+(use-package magit-delta
+  :hook (magit-mode . magit-delta-mode))
 
-;; (use-package magit-delta)
+(defun ox/magit-delta-toggle ()
+  (interactive)
+  (magit-delta-mode
+   (if magit-delta-mode
+       -1
+     1))
+  (magit-refresh))
 
-;; (defun aankh/toggle-magit-delta ()
-;;   (interactive)
-;;   (magit-delta-mode
-;;    (if magit-delta-mode
-;;        -1
-;;      1))
-;;   (magit-refresh))
+(defun genox/screenshot-from-clipboard ()
+  "Save clipboard image to a uniquely named file in ../media/
+relative to current file, and insert a markdown image link."
+  (interactive)
+  (let* ((basename (file-name-base (buffer-file-name)))
+         (media-dir (expand-file-name "../media/" (file-name-directory (buffer-file-name))))
+         (counter 1)
+         filename)
+
+    ;; Ensure media directory exists
+    (unless (file-exists-p media-dir)
+      (make-directory media-dir t))
+
+    ;; Find a unique filename
+    (setq filename (expand-file-name (format "%s-%d.png" basename counter) media-dir))
+    (while (file-exists-p filename)
+      (setq counter (1+ counter))
+      (setq filename (expand-file-name (format "%s-%d.png" basename counter) media-dir)))
+
+    ;; Save clipboard image using pngpaste
+    (if (eq system-type 'darwin)
+        (call-process "pngpaste" nil nil nil filename)
+      (error "Clipboard image capture only supported on macOS with pngpaste"))
+
+    ;; Insert markdown image link
+    ;; Insert markdown image link with path starting from /media/
+    (when (file-exists-p filename)
+      (insert (format "![](/media/%s)" (file-name-nondirectory filename))))
+
+    (markdown-display-inline-images)
+    (newline)))
+
+(defun genox/markdown-translate-image-path (path)
+  "Translate /media/... image links to ../media/... relative to buffer."
+  (if (string-prefix-p "/media/" path)
+      (let ((path* (expand-file-name
+		    (substring path 7) ;; strip "/media/"
+		    (expand-file-name "../media/" (file-name-directory (buffer-file-name))))))
+	(message "Markdown path")
+	(message path*)
+	path*)
+    path))
+
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            (setq-local markdown-translate-filename-function
+                        #'genox/markdown-translate-image-path)))
+
+(defun genox/blog-post-add-create-new (filename)
+  "Create a new blog post in <blog-dir>/src/blog/ with proper front matter."
+  (interactive "sEnter blog filename: ")
+  (let* ((blog-dir "~/projects/oxal.org")  ;; Change this to your actual blog directory
+         (sanitized-name (replace-regexp-in-string " " "-" filename))
+         (full-path (expand-file-name (concat "src/blog/" sanitized-name ".md") blog-dir))
+         (title (capitalize
+                 (mapconcat #'identity (split-string sanitized-name "-") " ")))
+         (date (format-time-string "%Y-%m-%d")))
+    (make-directory (file-name-directory full-path) t)
+    (find-file full-path)
+    (insert (format "---\ndate: %s\ntitle: %s\ntags:\n    - self\n---\n\n"
+                    date title))
+    (save-buffer)))
+
+;; copied from spacemacs, originally by magnars
+(defun spacemacs/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let* ((name (buffer-name))
+         (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let* ((dir (file-name-directory filename))
+             (new-name (read-file-name "New name: " dir)))
+        (cond ((get-buffer new-name)
+               (error "A buffer named '%s' already exists!" new-name))
+              (t
+               (let ((dir (file-name-directory new-name)))
+                 (when (and (not (file-exists-p dir)) (yes-or-no-p (format "Create directory '%s'?" dir)))
+                   (make-directory dir t)))
+               (rename-file filename new-name 1)
+               (rename-buffer new-name)
+               (set-visited-file-name new-name)
+               (set-buffer-modified-p nil)
+               (when (fboundp 'recentf-add-file)
+                 (recentf-add-file new-name)
+                 (recentf-remove-if-non-kept filename))
+               (when (projectile-project-p)
+                 (call-interactively #'projectile-invalidate-cache))
+               (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
+
+;; from magnars
+(defun spacemacs/delete-current-buffer-file ()
+  "Removes file connected to current buffer and kills buffer."
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure you want to delete this file? ")
+        (delete-file filename t)
+        (kill-buffer buffer)
+        (when (projectile-project-p)
+          (call-interactively #'projectile-invalidate-cache))
+        (message "File '%s' successfully removed" filename)))))
+
+(defun ox/clone-github-repo (repo-name target-dir)
+  "Clone a GitHub repository using git protocol.
+REPO-NAME should be in format 'org-name/repo-name'.
+TARGET-DIR is the directory path selected via file picker."
+  (interactive "sRepository (org-name/repo-name): \nDTarget directory: ")
+  (let* ((github-url (format "git@github.com:%s.git" repo-name))
+         (full-target-path (expand-file-name target-dir))
+         (repo-local-name (file-name-nondirectory repo-name))
+         (clone-path (file-name-as-directory (concat full-target-path repo-local-name))))
+
+    ;; Ensure target directory exists
+    (unless (file-directory-p full-target-path)
+      (make-directory full-target-path t))
+
+    ;; Check if destination already exists
+    (when (file-exists-p clone-path)
+      (error "Directory %s already exists" clone-path))
+
+    ;; Use magit-clone if available, otherwise fall back to shell command
+    (if (fboundp 'magit-clone)
+        (progn
+          (message "Cloning %s to %s using magit..." repo-name clone-path)
+          (magit-clone-regular github-url clone-path nil))
+      (progn
+        (message "Cloning %s to %s using git command..." repo-name clone-path)
+        (let ((default-directory full-target-path))
+          (shell-command (format "git clone %s" github-url)))))
+
+    (message "Successfully cloned %s to %s" repo-name clone-path)
+    clone-path))
 
 ;; ;; For some reason, this was being called twice without the guard.
 ;; (with-eval-after-load 'magit-diff
