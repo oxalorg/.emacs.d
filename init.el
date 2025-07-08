@@ -173,6 +173,59 @@
           (display-line-numbers-mode 0))
       (when (bound-and-true-p ox/darkroom--line-numbers-were)
 	(display-line-numbers-mode 1)))))
+(use-package markdown-mode
+  :config
+  (defun markdown-display-inline-images ()
+    "Add inline image overlays to image links in the buffer.
+This can be toggled with `markdown-toggle-inline-images'
+or \\[markdown-toggle-inline-images]."
+    (interactive)
+    (unless (display-images-p)
+      (error "Cannot show images"))
+    (save-excursion
+      (save-restriction
+	(widen)
+	(goto-char (point-min))
+	(while (re-search-forward markdown-regex-link-inline nil t)
+          (let* ((start (match-beginning 0))
+		 (imagep (match-beginning 1))
+		 (end (match-end 0))
+		 (file (funcall markdown-translate-filename-function (match-string-no-properties 6))))
+            (when (and imagep
+                       (not (zerop (length file))))
+              (unless (file-exists-p file)
+		(let* ((download-file (funcall markdown-translate-filename-function file))
+                       (valid-url (ignore-errors
+                                    (member (downcase (url-type (url-generic-parse-url download-file)))
+                                            markdown-remote-image-protocols))))
+                  (if (and markdown-display-remote-images valid-url)
+                      (setq file (markdown--get-remote-image download-file))
+                    (when (not valid-url)
+                      ;; strip query parameter
+                      (setq file (replace-regexp-in-string "?.+\\'" "" file))
+                      (unless (file-exists-p file)
+			(setq file (url-unhex-string file)))))))
+              (when (file-exists-p file)
+		(let* ((abspath (if (file-name-absolute-p file)
+                                    file
+                                  (concat default-directory file)))
+                       (image
+			(cond ((and markdown-max-image-size
+                                    (image-type-available-p 'imagemagick))
+                               (create-image
+				abspath 'imagemagick nil
+				:max-width (car markdown-max-image-size)
+				:max-height (cdr markdown-max-image-size)))
+                              (markdown-max-image-size
+                               (create-image abspath nil nil
+                                             :max-width (car markdown-max-image-size)
+                                             :max-height (cdr markdown-max-image-size)))
+                              (t (create-image abspath)))))
+                  (when image
+                    (let ((ov (make-overlay start end)))
+                      (overlay-put ov 'display image)
+                      (overlay-put ov 'face 'default)
+                      (push ov markdown-inline-image-overlays))))))))))))
 (use-package yaml-mode)
 (use-package hcl-mode)
 (use-package typescript-mode)
