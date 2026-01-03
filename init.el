@@ -3,6 +3,11 @@
 (setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")
 			 ("melpa" . "https://melpa.org/packages/")))
+
+;; Refresh package contents if needed
+(unless package-archive-contents
+  (package-refresh-contents))
+
 (package-initialize)
 
 (require 'use-package)
@@ -354,6 +359,9 @@ or \\[markdown-toggle-inline-images]."
             (when (derived-mode-p 'prog-mode)
               (delete-trailing-whitespace))))
 
+(use-package doom-modeline
+  :init (doom-modeline-mode 1))
+
 ;;(require 'corgi-clojure-cider-extras)
 ;;(require 'corgi-cider-connection-indicator)
 
@@ -455,13 +463,11 @@ or \\[markdown-toggle-inline-images]."
   (evil-escape-mode))
 
 (use-package multiple-cursors
-
   :config
   (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-  (hello global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-  )
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 
 (use-package evil-mc
   :config
