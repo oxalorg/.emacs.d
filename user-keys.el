@@ -39,8 +39,7 @@
   ("*" "search word swap" evil-search-unbounded-word-forward)
   ("g" "goto"
    ("*" "search word swap" evil-search-word-forward)
-   ("d" "Find definition" lsp-find-definition)
-   ("r" "Find ref" lsp-find-references)
+   ("r" "Find ref" xref-find-references)
    ("D" "Find UI definition" lsp-ui-peek-find-definitions)
    ("R" "Find ref" lsp-ui-peek-find-references)
    )
@@ -91,7 +90,8 @@
    ("c" "clojure"
     ("a" "add arity" clojure-add-arity)
     ("p" "run python" ox/run-python-on-current-file)
-    ("c" "Recompile" recompile))
+    ("c" "Recompile" recompile)
+    ("k" "Compile command" compile))
 
    ("d" "docs for now"
     ("c" "clojuredocs" clojuredocs-lookup))
@@ -116,7 +116,8 @@
     )
 
    ("j" "Journal / jump"
-    ("j" "journal" org-journal-new-entry)
+    ("j" "journal" ox/journal-open-devlog)
+    ("J" "journal" org-journal-new-entry)
     ("o" "journal open" ox/journal-open-dir)
     ("d" "Discord log" ox/journal-discord-gaiwan)
     ("s" "slack log" ox/journal-slack-gaiwan)
@@ -130,9 +131,12 @@
     )
 
    ("p" "projectile"
+    ("=" "profiler start" profiler-start)
+    ("-" "profiler start" profiler-report)
     ("r" "refresh projects" ox/refresh-projects-dir))
 
    ("r" "(w)rap"
+    ("b" "revert buffer" revert-buffer)
     ("r" "round insert" ox/open-round-insert)
     ("w" "wrap" paredit-wrap-round)
     ("(" "wrap" paredit-wrap-round)
@@ -140,7 +144,8 @@
     ("{" "wrap curly" paredit-wrap-curly))
 
    ("t" "Toggle"
-    ("t" "parens toggle" ox/toggle-parens))
+    ("t" "parens toggle" ox/toggle-parens)
+    ("l" "linum toggle" display-line-numbers-mode))
 
    ("y" "Yank"
     ("p" "Yank pop list" consult-yank-pop))
