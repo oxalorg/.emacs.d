@@ -1,8 +1,8 @@
 ;; Initialize package.el
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+(setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
 (require 'use-package)
@@ -33,16 +33,21 @@
 (setq visible-bell 1)
 (setq find-file-visit-truename t)
 (setq vc-follow-symlinks t)
+
+;; Hide menu bar on macOS
+(menu-bar-mode -1)
 (setopt use-short-answers t)
 (setq byte-compile-warnings '(not obsolete))
 
 (setq trash-directory "~/.Trash")
+(setq delete-by-moving-to-trash t)
 
 ;; See `trash-directory' as it requires defining `system-move-file-to-trash'.
-(defun system-move-file-to-trash (file)
-  "Use \"trash\" to move FILE to the system trash."
-  (cl-assert (executable-find "trash") nil "'trash' must be installed. Needs \"brew install trash\"")
-  (call-process "trash" nil 0 nil "-F"  file))
+;; (defun system-move-file-to-trash (file)
+;;   "Use \"trash\" to move FILE to the system trash."
+;;   (message "calling trash")
+;;   (cl-assert (executable-find "trash") nil "'trash' must be installed. Needs \"brew install trash\"")
+;;   (call-process "trash" nil 0 nil "-F"  file))
 
 ;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
 (use-package exec-path-from-shell
@@ -65,8 +70,8 @@
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
   ;; Use visual line motions even outside of visual-line-mode buffers
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  ;; (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  ;; (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
   (require 'evil-maps)
   (define-key evil-motion-state-map "L" nil)
@@ -95,6 +100,9 @@
 
 (use-package walkclj
   :vc (:url "https://github.com/corgi-emacs/walkclj.git" :rev :newest))
+
+;; (use-package buffer-box
+;;   :vc (:url "https://github.com/rougier/buffer-box.git" :rev :newest))
 
 (use-package clj-ns-name
   :after (projectile walkclj)
@@ -131,15 +139,59 @@
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs-saves/" t)))
 
-(use-package magit)
+(defvar git-llm-pending-message nil
+  "Temporarily stores LLM-generated commit message.")
+
+(defun git-llm-insert-message ()
+  "Insert the pending LLM message into the commit buffer."
+  (when git-llm-pending-message
+    (save-excursion
+      (goto-char (point-min))
+      (insert git-llm-pending-message)
+      (when (not (string-suffix-p "\n" git-llm-pending-message))
+        (insert "\n")))
+    ;; Clear the pending message
+    (setq git-llm-pending-message nil)
+    ;; Remove this hook after use
+    (remove-hook 'git-commit-setup-hook 'git-llm-insert-message)))
+
+
+(defun git-llm-commit-with-preview ()
+  "Generate commit message using 'git llm', show preview, and allow editing before commit."
+  (interactive)
+  (let ((commit-msg (string-trim (shell-command-to-string "git llm"))))
+    (if (string-empty-p commit-msg)
+        (message "Error: git llm returned empty message")
+      (progn
+        (message "Generated commit message: %s" commit-msg)
+        ;; Use magit if available
+        (when (fboundp 'magit-commit-create)
+          (progn
+            ;; Store the message and set up hook
+            (setq git-llm-pending-message commit-msg)
+            (add-hook 'git-commit-setup-hook 'git-llm-insert-message)
+            ;; Open the commit buffer
+            (magit-commit-create)))))))
+
+(use-package magit
+  :config
+  (transient-append-suffix 'magit-commit "c"
+    '("l" "LLM commit menu" git-llm-commit-with-preview)))
 (use-package org
   :ensure nil
   :init
   (setq org-directory "~/projects/org")
   :config
-  (require 'org-tempo))
-(use-package org-modern
-  :hook '(org-mode-hook . org-modern-mode))
+  (require 'org-tempo)
+  (add-hook 'org-mode-hook (lambda ()
+			     (setq-local fill-column 80)
+			     (visual-line-fill-column-mode)))
+  (setq org-babel-python-command "python3")
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t))))
+;; (use-package org-modern
+;;   :hook '(org-mode-hook . org-modern-mode))
 (use-package org-autolist
   :hook (org-mode . org-autolist-mode))
 (use-package org-journal
@@ -160,6 +212,7 @@
         org-download-screenshot-method "pngpaste %s") ;; macOS clipboard
   (add-hook 'dired-mode-hook 'org-download-enable))
 (use-package writeroom-mode)
+(use-package org-modern)
 (use-package darkroom
   :hook ((darkroom-mode . ox/darkroom-toggle-line-numbers)
 	 (darkroom-tentative-mode . ox/darkroom-toggle-line-numbers))
@@ -253,6 +306,9 @@ or \\[markdown-toggle-inline-images]."
            (not (server-running-p server-name)))
   (server-start))
 (global-display-line-numbers-mode 1)
+(setq display-line-numbers 'fixed)
+
+(setq tramp-default-method "ssh")
 
 ;; use with ,,<letter>, e.g. `,,g' runs (user/go)
 (set-register ?k "#_clj (do (require 'kaocha.repl) (kaocha.repl/run))")
@@ -272,10 +328,26 @@ or \\[markdown-toggle-inline-images]."
 ;;   :config
 ;;   (load-theme 'sanityinc-tomorrow-night t))
 
-(use-package cherry-blossom-theme
+;; (use-package cherry-blossom-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'cherry-blossom t))
+(use-package doom-themes
   :ensure t
+  :custom
+  ;; Global settings (defaults)
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
-  (load-theme 'cherry-blossom t))
+  (load-theme 'doom-outrun-electric t)
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (nerd-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
 (add-hook 'before-save-hook
           (lambda ()
@@ -318,7 +390,8 @@ or \\[markdown-toggle-inline-images]."
 (use-package visual-fill-column)
 
 (use-package flycheck-clj-kondo
-  :ensure t)
+  :ensure t
+  :after flycheck)
 
 (use-package zprint-mode)
 
@@ -334,6 +407,13 @@ or \\[markdown-toggle-inline-images]."
   (put-clojure-indent 'lambdaisland.morf/deform 1)
   (put-clojure-indent 'reflect/extend-signatures '(1 :form (1)))
   (put-clojure-indent 'sc.api/letsc '(1)))
+
+(defun ox/cider-jack-in-babashka ()
+  "Start a Babashka REPL without injecting JVM middleware."
+  (interactive)
+  (let ((cider-inject-dependencies-at-jack-in nil)
+        (cider-enrich-classpath nil))
+    (cider-jack-in-universal '(:project-type babashka))))
 
 (defun ox/cider-eval-defun-at-point-and-run-test ()
   (interactive)
@@ -373,6 +453,19 @@ or \\[markdown-toggle-inline-images]."
   :config
   (setq-default evil-escape-key-sequence "qp")
   (evil-escape-mode))
+
+(use-package multiple-cursors
+
+  :config
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (hello global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+  )
+
+(use-package evil-mc
+  :config
+  (global-evil-mc-mode 1))
 
 (use-package evil-cleverparens
   :after (evil)
@@ -455,6 +548,22 @@ or \\[markdown-toggle-inline-images]."
   (interactive)
   (projectile-with-default-dir "~/projects/org"
     (projectile-find-file)))
+
+(defun ox/journal-open-devlog ()
+  "Open the ~/projects/org/devlog.org directory using Projectile."
+  (interactive)
+  (find-file "~/projects/org/devlog.org"))
+
+(defun ox/irc-libera ()
+  "Connect to Libera.Chat via ZNC bouncer."
+  (interactive)
+  (let ((password (auth-source-pick-first-password
+                   :host "irc.oxal.org"
+                   :port "6697")))
+    (erc-tls :server "irc.oxal.org"
+             :port 6697
+             :nick "ox"
+             :password password)))
 
 (defun send-discord-message-with-webhook (webhook-url message)
   "Send a message to a Discord channel using a webhook URL."
@@ -550,51 +659,64 @@ or \\[markdown-toggle-inline-images]."
 (use-package css-in-js-mode
   :vc (:url "https://github.com/orzechowskid/tree-sitter-css-in-js.git" :rev :newest))
 
-(use-package corfu
-  ;; Optional customizations
-  :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?_)          ;; Orderless field separator
-  (corfu-auto-prefix 2)           ;; Minimum length of prefix for completion
-  (corfu-auto-delay 0)            ;; No delay for completion
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  (corfu-preview-current 'insert)    ;; Disable current candidate preview
-  (corfu-preselect 'prompt)      ;; Preselect the prompt
-  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-  (corfu-popupinfo-delay '(0.2 . 0.2))
-  :bind (:map corfu-map
-              ("S-SPC"      . corfu-insert-separator)
-              ("TAB"        . corfu-next)
-              ([tab]        . corfu-next)
-              ("S-TAB"      . corfu-previous)
-              ([backtab]    . corfu-previous)
-              ("S-<return>" . corfu-insert)
-              ("RET"        . corfu-insert))
-  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
-  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-  ;; be used globally (M-/).  See also the customization variable
-  ;; `global-corfu-modes' to exclude certain modes.
-  :init
-  (global-corfu-mode)
-  (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  (corfu-echo-mode)
+(use-package company
   :config
-  (add-hook 'eshell-mode-hook
-            (lambda () (setq-local corfu-quit-at-boundary t
-                                   corfu-quit-no-match t
-                                   corfu-auto nil)
-              (corfu-mode))
-            nil
-            t)
-  )
+  (global-company-mode))
+
+(use-package vertico
+  :custom
+  ;; (vertico-scroll-margin 0) ;; Different scroll margin
+  ;; (vertico-count 20) ;; Show more candidates
+  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  ;; (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode 1))
+
+;; (use-package corfu
+;;   ;; Optional customizations
+;;   :custom
+;;   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+;;   (corfu-auto t)                 ;; Enable auto completion
+;;   (corfu-separator ?_)          ;; Orderless field separator
+;;   (corfu-auto-prefix 2)           ;; Minimum length of prefix for completion
+;;   (corfu-auto-delay 0)            ;; No delay for completion
+;;   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+;;   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+;;   (corfu-preview-current 'insert)    ;; Disable current candidate preview
+;;   (corfu-preselect 'prompt)      ;; Preselect the prompt
+;;   (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+;;   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+;;   (corfu-popupinfo-delay '(0.2 . 0.2))
+;;   :bind (:map corfu-map
+;;               ("S-SPC"      . corfu-insert-separator)
+;;               ("TAB"        . corfu-next)
+;;               ([tab]        . corfu-next)
+;;               ("S-TAB"      . corfu-previous)
+;;               ([backtab]    . corfu-previous)
+;;               ("S-<return>" . corfu-insert)
+;;               ("RET"        . corfu-insert))
+;;   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
+;;   ;; :hook ((prog-mode . corfu-mode)
+;;   ;;        (shell-mode . corfu-mode)
+;;   ;;        (eshell-mode . corfu-mode))
+
+;;   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+;;   ;; be used globally (M-/).  See also the customization variable
+;;   ;; `global-corfu-modes' to exclude certain modes.
+;;   :init
+;;   (global-corfu-mode)
+;;   (corfu-history-mode)
+;;   (corfu-popupinfo-mode)
+;;   (corfu-echo-mode)
+;;   :config
+;;   (add-hook 'eshell-mode-hook
+;;             (lambda () (setq-local corfu-quit-at-boundary t
+;;                                    corfu-quit-no-match t
+;;                                    corfu-auto nil)
+;;               (corfu-mode))
+;;             nil
+;;             t)
+;;   )
 
 ;; Add extensions
 (use-package cape
@@ -732,13 +854,14 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package flycheck
   :ensure t
+  :pin melpa
   :init (global-flycheck-mode))
 
 (use-package flycheck-rust
   :ensure t
+  :after flycheck
   :config
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-  )
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 ;; ;; (define-key input-decode-map (kbd "M-v") 'my-paste-from-clipboard)
 ;; ;; (defun my-paste-from-clipboard ()
@@ -767,7 +890,7 @@ or \\[markdown-toggle-inline-images]."
 	 ;; (clojure-mode . lsp)
          ;; (clojurec-mode . lsp)
          ;; (clojurescript-mode . lsp)
-	 ;; (typescript-ts-mode . lsp)
+	 (typescript-ts-mode . lsp)
 	 (lsp-mode . lsp-diagnostics-mode)
          (lsp-mode . lsp-enable-which-key-integration)
          ((tsx-ts-mode
@@ -880,6 +1003,16 @@ or \\[markdown-toggle-inline-images]."
    (lsp-request "textDocument/references"
                 (lsp--text-document-position-params))))
 
+(use-package lsp-pyright
+  :ensure t
+  :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp)))
+  :config
+  (setq flycheck-ruff-args '("--output-format=full"))
+  )
+
 (use-package treemacs
   :ensure t
   :defer t
@@ -900,6 +1033,27 @@ or \\[markdown-toggle-inline-images]."
   :ensure t)
 
 (use-package gptel)
+
+;; Emacs 30+ built-in use-package with :vc
+(use-package eat
+  :vc ( :url "https://codeberg.org/akib/emacs-eat.git"
+        :branch "master")
+  :commands (eat eat-eshell-mode)
+  :init
+  ;; Optional Eshell integration
+  (add-hook 'eshell-load-hook #'eat-eshell-mode)
+  (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode))
+
+(use-package vterm
+  :ensure t)
+
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :config
+  ;; (setq claude-code-ide-terminal-backend 'eat)
+  (setq claude-code-ide-terminal-backend 'vterm)
+  (claude-code-ide-emacs-tools-setup))
 
 (use-package aidermacs
   :bind (("C-c a" . aidermacs-transient-menu))
@@ -981,6 +1135,8 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package haskell-mode)
 
+(use-package zig-mode)
+
 (use-package terraform-mode)
 
 (use-package rust-mode)
@@ -1028,13 +1184,14 @@ or \\[markdown-toggle-inline-images]."
                (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
                (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
                (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
-               (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
+               (python . ("https://github.com/tree-sitter/tree-sitter-python"))
                (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
                (markdown "https://github.com/ikatyang/tree-sitter-markdown")
                (make "https://github.com/alemuller/tree-sitter-make")
                (elisp "https://github.com/Wilfred/tree-sitter-elisp")
                (cmake "https://github.com/uyha/tree-sitter-cmake")
                (c "https://github.com/tree-sitter/tree-sitter-c")
+               (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
                (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
                (toml "https://github.com/tree-sitter/tree-sitter-toml")
                (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
@@ -1123,6 +1280,13 @@ or \\[markdown-toggle-inline-images]."
   (insert (substring pair 1 2))
   (goto-char start))
 
+(defun ox/toggle-linum-relative ()
+  "Toggle between absolute and relative line number display in the current buffer."
+  (interactive)
+  (if (eq display-line-numbers 'relative)
+      (setq-local display-line-numbers t)
+    (setq-local display-line-numbers 'relative)))
+
 (defun ox/toggle-parens ()
   "Toggle parens () <> [] at cursor.
 
@@ -1192,16 +1356,16 @@ mismatched parens are changed based on the left one."
 ;; (kbd ")") (lambda () (interactive) (insert "0"))
 ;; )
 
-(use-package magit-delta
-  :hook (magit-mode . magit-delta-mode))
+;; (use-package magit-delta
+;;   :hook (magit-mode . magit-delta-mode))
 
-(defun ox/magit-delta-toggle ()
-  (interactive)
-  (magit-delta-mode
-   (if magit-delta-mode
-       -1
-     1))
-  (magit-refresh))
+;; (defun ox/magit-delta-toggle ()
+;;   (interactive)
+;;   (magit-delta-mode
+;;    (if magit-delta-mode
+;;        -1
+;;      1))
+;;   (magit-refresh))
 
 (defun genox/screenshot-from-clipboard ()
   "Save clipboard image to a uniquely named file in ../media/
@@ -1251,6 +1415,13 @@ relative to current file, and insert a markdown image link."
             (setq-local markdown-translate-filename-function
                         #'genox/markdown-translate-image-path)))
 
+(defun genox/blog-dired ()
+  "Open blog directory"
+  (interactive)
+  (let ((dired-listing-switches "-alht --time-style=long-iso"))
+    (dired "~/projects/oxal.org/src/blog"))
+  (dired-hide-details-mode 1))
+
 (defun genox/blog-post-add-create-new (filename)
   "Create a new blog post in <blog-dir>/src/blog/ with proper front matter."
   (interactive "sEnter blog filename: ")
@@ -1265,6 +1436,17 @@ relative to current file, and insert a markdown image link."
     (insert (format "---\ndate: %s\ntitle: %s\ntags:\n    - self\n---\n\n"
                     date title))
     (save-buffer)))
+
+(defun spacemacs/copy-buffer-file-name ()
+  "Show the full path to the current file in the minibuffer."
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (if file-name
+        (progn
+          (message file-name)
+          (kill-new file-name))
+      (error "Buffer not visiting a file"))))
+
 
 ;; copied from spacemacs, originally by magnars
 (defun spacemacs/rename-current-buffer-file ()
@@ -1359,3 +1541,8 @@ TARGET-DIR is the directory path selected via file picker."
 
 (provide 'init)
 ;;; local.ox.el ends here
+
+;; First, install dired-hacks
+;; Add to your init.el and run M-x package-install RET dired-hacks RET
+
+(require 'dired-hacks-utils) ; or whichever dired-hacks modules you want
