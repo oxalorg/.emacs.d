@@ -85,7 +85,6 @@
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
-
 (message "[ox] Loading corgi")
 
 ;; Loading corgi deps
@@ -665,9 +664,33 @@ or \\[markdown-toggle-inline-images]."
 (use-package css-in-js-mode
   :vc (:url "https://github.com/orzechowskid/tree-sitter-css-in-js.git" :rev :newest))
 
-(use-package company
+(use-package yasnippet
   :config
-  (global-company-mode))
+  (yas-global-mode 1))
+
+(use-package yasnippet-snippets)
+
+;; (use-package yasnippet-capf
+;;   :after yasnippet
+;;   :init
+;;   (add-to-list 'completion-at-point-functions #'yasnippet-capf)
+;;   (defun ox/add-yas-capf ()
+;;     (setq-local completion-at-point-functions
+;; 		(cons #'yasnippet-capf
+;;                       (remq #'yasnippet-capf completion-at-point-functions))))
+;;   :hook
+;;   ((prog-mode text-mode) . ox/add-yas-capf))
+
+(use-package company
+  :after (yasnippet lsp-mode)
+  :config
+  (setq company-backends
+	'((company-capf company-files company-dabbrev-code :with company-yasnippet)))
+  (global-company-mode)
+  (diminish-undo 'company-mode)
+  (setq company-tooltip-align-annotations t)
+  (setq company-minimum-prefix-length 2)
+  (setq company-idle-delay 0.1))
 
 (use-package vertico
   :custom
@@ -725,26 +748,26 @@ or \\[markdown-toggle-inline-images]."
 ;;   )
 
 ;; Add extensions
-(use-package cape
-  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-  ;; Press C-c p ? to for help.
-  :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
-  ;; Alternatively bind Cape commands individually.
-  ;; :bind (("C-c p d" . cape-dabbrev)
-  ;;        ("C-c p h" . cape-history)
-  ;;        ("C-c p f" . cape-file)
-  ;;        ...)
-  :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  ;; (add-hook 'completion-at-point-functions #'cape-history)
-  ;; ...
-  )
+;; (use-package cape
+;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+;;   ;; Press C-c p ? to for help.
+;;   :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+;;   ;; Alternatively bind Cape commands individually.
+;;   ;; :bind (("C-c p d" . cape-dabbrev)
+;;   ;;        ("C-c p h" . cape-history)
+;;   ;;        ("C-c p f" . cape-file)
+;;   ;;        ...)
+;;   :init
+;;   ;; Add to the global default value of `completion-at-point-functions' which is
+;;   ;; used by `completion-at-point'.  The order of the functions matters, the
+;;   ;; first function returning a result wins.  Note that the list of buffer-local
+;;   ;; completion functions takes precedence over the global list.
+;;   ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
+;;   ;; (add-hook 'completion-at-point-functions #'cape-file)
+;;   ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
+;;   ;; (add-hook 'completion-at-point-functions #'cape-history)
+;;   ;; ...
+;;   )
 
 ;; A few more useful configurations...
 (use-package emacs
@@ -755,7 +778,7 @@ or \\[markdown-toggle-inline-images]."
 
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
-  (tab-always-indent 'complete)
+  ;; (tab-always-indent 'complete)
 
   ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
   ;; try `cape-dict'.
@@ -879,17 +902,6 @@ or \\[markdown-toggle-inline-images]."
 ;; ;;         (evil-paste-after))
 ;; ;;     (yank)))
 
-(use-package yasnippet
-  :config
-  (yas-global-mode 1))
-
-(use-package yasnippet-snippets)
-
-(use-package yasnippet-capf
-  :after cape
-  :config
-  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
-
 (use-package lsp-mode
   :ensure t
   :hook (
@@ -907,7 +919,7 @@ or \\[markdown-toggle-inline-images]."
            js-ts-mode) . lsp-deferred)
 	 )
   :custom
-  (lsp-completion-provider :none)       ;; Using Corfu as the provider
+  (setq lsp-completion-provider :none)       ;; Using Corfu as the provider
   (lsp-diagnostics-provider :flycheck)
   (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
   (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
