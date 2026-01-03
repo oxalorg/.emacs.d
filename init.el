@@ -886,6 +886,8 @@ or \\[markdown-toggle-inline-images]."
   :pin melpa
   :init (global-flycheck-mode))
 
+(use-package consult-flycheck)
+
 (use-package flycheck-rust
   :ensure t
   :after flycheck
@@ -1557,10 +1559,9 @@ TARGET-DIR is the directory path selected via file picker."
 
 (message "[ox] init.el finished loading.")
 
-(provide 'init)
-;;; local.ox.el ends here
-
 ;; First, install dired-hacks
 ;; Add to your init.el and run M-x package-install RET dired-hacks RET
+;; (require 'dired-hacks-utils) ; or whichever dired-hacks modules you want
 
-(require 'dired-hacks-utils) ; or whichever dired-hacks modules you want
+(provide 'init)
+;;; local.ox.el ends here

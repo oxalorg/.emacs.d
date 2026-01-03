@@ -87,9 +87,10 @@
    ("i" "inspect"
     ("r" "last result" cider-inspect-last-result))
 
-   ("c" "clojure"
+   ("c" "compile"
     ("a" "add arity" clojure-add-arity)
     ("p" "run python" ox/run-python-on-current-file)
+    ("e" "errors flycheck" consult-flycheck)
     ("c" "Recompile" recompile)
     ("k" "Compile command" compile))
 
