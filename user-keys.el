@@ -117,6 +117,7 @@
     )
 
    ("j" "Journal / jump"
+    ("i" "Jump in buffer" consult-imenu)
     ("j" "journal" ox/journal-open-devlog)
     ("J" "journal" org-journal-new-entry)
     ("o" "journal open" ox/journal-open-dir)
@@ -129,7 +130,7 @@
 
    ("l" "lsp"
     ("l" "lsp inline completion" lsp-inline-completion-display)
-    )
+    ("f" "apply code action fix" lsp-execute-code-action))
 
    ("p" "projectile"
     ("=" "profiler start" profiler-start)
@@ -143,6 +144,11 @@
     ("(" "wrap" paredit-wrap-round)
     ("[" "wrap square" paredit-wrap-square)
     ("{" "wrap curly" paredit-wrap-curly))
+
+
+   ("s" "swiper"
+    ("i" "consult index menu" consult-imenu)
+    )
 
    ("t" "Toggle"
     ("t" "parens toggle" ox/toggle-parens)
