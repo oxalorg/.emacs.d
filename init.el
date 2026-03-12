@@ -913,9 +913,9 @@ or \\[markdown-toggle-inline-images]."
 (use-package lsp-mode
   :ensure t
   :hook (
-	 ;; (clojure-mode . lsp)
-         ;; (clojurec-mode . lsp)
-         ;; (clojurescript-mode . lsp)
+	 (clojure-mode . lsp)
+         (clojurec-mode . lsp)
+         (clojurescript-mode . lsp)
 	 (typescript-ts-mode . lsp)
 	 (lsp-mode . lsp-diagnostics-mode)
          (lsp-mode . lsp-enable-which-key-integration)
@@ -947,8 +947,10 @@ or \\[markdown-toggle-inline-images]."
   (lsp-enable-symbol-highlighting t)     ; Shows usages of symbol at point in the current buffer
   (lsp-enable-text-document-color nil)   ; This is Treesitter's job
 
-  (lsp-ui-sideline-show-hover nil)      ; Sideline used only for diagnostics
-  (lsp-ui-sideline-diagnostic-max-lines 20) ; 20 lines since typescript errors can be quite big
+  ;; (lsp-ui-sideline-enable t)
+  ;; (lsp-ui-sideline-show-code-actions 0)
+  ;; (lsp-ui-sideline-show-hover t)      ; Sideline used only for diagnostics
+  ;; (lsp-ui-sideline-diagnostic-max-lines 20) ; 20 lines since typescript errors can be quite big
   ;; completion
   (lsp-completion-enable t)
   (lsp-completion-enable-additional-text-edit t) ; Ex: auto-insert an import for a completion candidate
