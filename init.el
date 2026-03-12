@@ -644,6 +644,12 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package just-mode)
 
+(use-package css-mode
+  :mode ("\\.css\\'" "\\.scss\\'")
+  :hook (css-mode . lsp-deferred)  ; Change to eglot-ensure if using mod-eglot
+  :custom
+  (css-indent-offset 2))
+
 (use-package web-mode
   ;;   :mode (("\\.js\\'" . web-mode)
   ;; 	 ("\\.jsx\\'" .  web-mode)
