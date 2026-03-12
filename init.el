@@ -159,7 +159,6 @@
     ;; Remove this hook after use
     (remove-hook 'git-commit-setup-hook 'git-llm-insert-message)))
 
-
 (defun git-llm-commit-with-preview ()
   "Generate commit message using 'git llm', show preview, and allow editing before commit."
   (interactive)
@@ -181,6 +180,7 @@
   :config
   (transient-append-suffix 'magit-commit "c"
     '("l" "LLM commit menu" git-llm-commit-with-preview)))
+
 (use-package org
   :ensure nil
   :init
@@ -545,8 +545,10 @@ or \\[markdown-toggle-inline-images]."
   :vc (:url "https://github.com/plexus/html-to-hiccup.git" :rev :newest))
 
 (message "loading secrets...")
-(load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
-(message "secrets loaded")
+(let ((secrets-file (expand-file-name (concat user-emacs-directory "/secrets.el"))))
+  (when (file-exists-p secrets-file)
+     (load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
+     (message "secrets loaded")))
 
 (defun ox/journal-open-dir ()
   "Open the ~/projects/org directory using Projectile."
@@ -607,8 +609,9 @@ or \\[markdown-toggle-inline-images]."
   (let* ((message (read-string "Enter message: ")))
     (send-slack-message-with-webhook discord-slack-journal-webhook-url message)))
 
-(use-package clockify
-  :load-path "~/projects/emacs-clockify")
+(when (file-exists-p "~/projects/emacs-clockify")
+  (use-package clockify
+    :load-path "~/projects/emacs-clockify"))
 
 ;; Usage example: M-x send-discord-message
 
@@ -626,21 +629,22 @@ or \\[markdown-toggle-inline-images]."
       (kill-buffer buffer))))
 
 (use-package websocket)
-(use-package piglet-emacs
-  :ensure nil
-  :after '(websocket)
-  :load-path "~/projects/piglet-emacs")
-(use-package adoc-mode)
-(require 'piglet-emacs)
-
+(when (file-exists-p "~/projects/piglet-emacs")
+  (use-package piglet-emacs
+    :ensure nil
+    :after '(websocket)
+    :load-path "~/projects/piglet-emacs")
+  (use-package adoc-mode)
+  (require 'piglet-emacs))
 
 ;; erlang
 (defvar erlang-root-dir "/opt/homebrew/lib/erlang")
-(defvar erlang-lib-dir (car (file-expand-wildcards (expand-file-name "lib/tools-*/emacs" erlang-root-dir))))
-(add-to-list 'load-path erlang-lib-dir)
-(require 'erlang-start)
-(setq exec-path (cons (expand-file-name "bin" erlang-root-dir) exec-path))
-(setq erlang-man-root-dir (expand-file-name "man" erlang-root-dir))
+(when (file-exists-p erlang-root-dir)
+  (defvar erlang-lib-dir (car (file-expand-wildcards (expand-file-name "lib/tools-*/emacs" erlang-root-dir))))
+  (add-to-list 'load-path erlang-lib-dir)
+  (require 'erlang-start)
+  (setq exec-path (cons (expand-file-name "bin" erlang-root-dir) exec-path))
+  (setq erlang-man-root-dir (expand-file-name "man" erlang-root-dir)))
 
 (use-package just-mode)
 
@@ -1072,9 +1076,6 @@ or \\[markdown-toggle-inline-images]."
   (add-hook 'eshell-load-hook #'eat-eshell-mode)
   (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode))
 
-(use-package vterm
-  :ensure t)
-
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
@@ -1082,12 +1083,6 @@ or \\[markdown-toggle-inline-images]."
   ;; (setq claude-code-ide-terminal-backend 'eat)
   (setq claude-code-ide-terminal-backend 'vterm)
   (claude-code-ide-emacs-tools-setup))
-
-(use-package aidermacs
-  :bind (("C-c a" . aidermacs-transient-menu))
-  :custom
-  (aidermacs-use-architect-mode t)
-  (aidermacs-default-model "gpt-4o-mini"))
 
 ;; ;; (add-hook 'evil-insert-state-entry-hook (lambda () (send-string-to-terminal "\033[5 q")))                                                                                    (add-hook 'evil-normal-state-entry-hook (lambda () (send-string-to-terminal "\033[0 q")))
 
@@ -1142,10 +1137,11 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package devdocs)
 
-(use-package clojuredocs
-  :ensure nil
-  :load-path "~/projects/clojuredocs.el"
-  :after request)
+(when (file-exists-p "~/projects/clojuredocs.el")
+  (use-package clojuredocs
+    :ensure nil
+    :load-path "~/projects/clojuredocs.el"
+    :after request))
 
 (use-package difftastic
   :demand t
