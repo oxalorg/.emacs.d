@@ -778,9 +778,6 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package wgrep)
 
-;; (use-package tsx-mode
-;;   :vc (:url "https://github.com/orzechowskid/tsx-mode.el.git" :rev :newest))
-
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
