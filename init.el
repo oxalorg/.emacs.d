@@ -45,6 +45,8 @@
               bidi-paragraph-direction 'left-to-right)
 (setq bidi-inhibit-bpa t)
 
+(setq redisplay-skip-fontification-on-input t)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
