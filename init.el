@@ -201,11 +201,7 @@
 (corgi-use-package corgi-commands)
 (corgi-use-package corgi-clojure)
 (corgi-use-package corgi-emacs-lisp)
-;; (corgi-use-package corgi-stateline)
 (corgi-use-package corgi-bindings)
-;; (use-package corgi-bindings
-;;   :vc (:url "https://github.com/corgi-emacs/corgi-packages.git" :rev :newest
-;; 	    :lisp-dir "corgi-bindings/"))
 
 (use-package corkey
   :vc (:url "https://github.com/corgi-emacs/corkey.git" :rev :newest)
