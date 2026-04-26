@@ -116,9 +116,6 @@
 (use-package walkclj
   :vc (:url "https://github.com/corgi-emacs/walkclj.git" :rev :newest))
 
-;; (use-package buffer-box
-;;   :vc (:url "https://github.com/rougier/buffer-box.git" :rev :newest))
-
 (use-package clj-ns-name
   :after (projectile walkclj)
   :vc (:url "https://github.com/corgi-emacs/clj-ns-name.git" :rev :newest))
