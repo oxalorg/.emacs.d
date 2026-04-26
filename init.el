@@ -952,8 +952,6 @@ or \\[markdown-toggle-inline-images]."
             (t lsp-copilot-enabled))))
   )
 
-;; (add-hook 'typescript-ts-mode 'lsp-mode-hook)
-
 (use-package lsp-ui
   :ensure t
   :commands (lsp-ui-doc-show
