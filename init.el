@@ -41,6 +41,10 @@
 
 (setq read-process-output-max (* 4 1024 1024)) ; 4mb, headroom for chatty LSP servers
 
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
