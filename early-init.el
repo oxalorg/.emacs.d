@@ -11,7 +11,7 @@
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold 33554432 ; 32mb
+            (setq gc-cons-threshold 104857600 ; 100mb
                   gc-cons-percentage 0.1)
             (message "*** Emacs loaded in %s with %d garbage collections."
                      (format "%.2f seconds"
