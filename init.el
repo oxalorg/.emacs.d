@@ -58,6 +58,8 @@
 
 (setq help-window-select t)
 
+(setq set-mark-command-repeat-pop t)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
