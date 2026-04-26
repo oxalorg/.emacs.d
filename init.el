@@ -405,7 +405,6 @@ or \\[markdown-toggle-inline-images]."
            (not (server-running-p server-name)))
   (server-start))
 (global-display-line-numbers-mode 1)
-(setq display-line-numbers 'fixed)
 
 (setq tramp-default-method "ssh")
 
