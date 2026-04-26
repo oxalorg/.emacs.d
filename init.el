@@ -39,7 +39,7 @@
 (setopt use-short-answers t)
 (setq byte-compile-warnings '(not obsolete))
 
-(setq read-process-output-max (* 1024 1024)) ; 1mb, recommended for LSP throughput
+(setq read-process-output-max (* 4 1024 1024)) ; 4mb, headroom for chatty LSP servers
 
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
