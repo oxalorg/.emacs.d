@@ -1150,10 +1150,6 @@ or \\[markdown-toggle-inline-images]."
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (os/setup-install-grammars))
 
-;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . typescript-ts-mode))
-
 
 (defun ox/lsp-get-signature ()
   (interactive)
