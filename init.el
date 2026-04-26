@@ -267,8 +267,6 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t))))
-;; (use-package org-modern
-;;   :hook '(org-mode-hook . org-modern-mode))
 (use-package org-autolist
   :hook (org-mode . org-autolist-mode))
 (use-package org-journal
