@@ -4,23 +4,22 @@
 			 ("elpa" . "https://elpa.gnu.org/packages/")
 			 ("melpa" . "https://melpa.org/packages/")))
 
-;; Refresh package contents if needed
-(unless package-archive-contents
-  (package-refresh-contents))
-
 (package-initialize)
+
+;; Only contact ELPA servers if the on-disk archive cache is missing.
+;; `package-archive-contents' is populated by `package-initialize' from the
+;; cached files under elpa/archives/*/archive-contents, so checking it
+;; before `package-initialize' (as was done previously) always triggered a
+;; network refresh on every startup.
+(unless (file-exists-p
+         (expand-file-name "archives/melpa/archive-contents" package-user-dir))
+  (package-refresh-contents))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
 
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file 'noerror)
-
-;; (use-package corgi-packages
-;;              :ensure (corgi-packages
-;;                        :host github
-;;                        :repo "corgi-emacs/corgi-packages"
-;;                        :branch "ox/separate-completion-ui"))
 
 (use-package transient)
 (use-package json :ensure nil)
@@ -57,7 +56,7 @@
 ;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
 (use-package exec-path-from-shell
   :config
-  (when (memq window-system '(mac ns x))
+  (when (memq window-system '(mac ns x pgtk))
     (exec-path-from-shell-initialize)))
 
 (use-package evil
@@ -66,11 +65,20 @@
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
-  (fset 'evil-visual-update-x-selection 'ignore)
   (setq evil-kill-on-visual-paste nil)
   (setq-default evil-symbol-word-search t)
+  (setq save-interprogram-paste-before-kill t)
   :config
   (evil-mode t)
+
+  ;; Use wl-paste for clipboard on Wayland
+  (when (and (getenv "WAYLAND_DISPLAY")
+             (executable-find "wl-paste"))
+    (setq interprogram-paste-function
+          (lambda ()
+            (let ((clip (string-trim
+                         (shell-command-to-string "wl-paste -n 2>/dev/null"))))
+              (unless (string-empty-p clip) clip)))))
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
@@ -231,6 +239,15 @@
       (when (bound-and-true-p ox/darkroom--line-numbers-were)
 	(display-line-numbers-mode 1)))))
 (use-package markdown-mode
+  :init
+  (setq markdown-command
+        '("pandoc"
+          "--from=markdown"
+          "--to=html5"
+          "--standalone"
+          "--highlight-style=pygments")
+        markdown-css-paths
+        '("https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css"))
   :config
   (defun markdown-display-inline-images ()
     "Add inline image overlays to image links in the buffer.
@@ -244,45 +261,45 @@ or \\[markdown-toggle-inline-images]."
 	(widen)
 	(goto-char (point-min))
 	(while (re-search-forward markdown-regex-link-inline nil t)
-          (let* ((start (match-beginning 0))
+	  (let* ((start (match-beginning 0))
 		 (imagep (match-beginning 1))
 		 (end (match-end 0))
 		 (file (funcall markdown-translate-filename-function (match-string-no-properties 6))))
-            (when (and imagep
-                       (not (zerop (length file))))
-              (unless (file-exists-p file)
+	    (when (and imagep
+		       (not (zerop (length file))))
+	      (unless (file-exists-p file)
 		(let* ((download-file (funcall markdown-translate-filename-function file))
-                       (valid-url (ignore-errors
-                                    (member (downcase (url-type (url-generic-parse-url download-file)))
-                                            markdown-remote-image-protocols))))
-                  (if (and markdown-display-remote-images valid-url)
-                      (setq file (markdown--get-remote-image download-file))
-                    (when (not valid-url)
-                      ;; strip query parameter
-                      (setq file (replace-regexp-in-string "?.+\\'" "" file))
-                      (unless (file-exists-p file)
+		       (valid-url (ignore-errors
+				    (member (downcase (url-type (url-generic-parse-url download-file)))
+					    markdown-remote-image-protocols))))
+		  (if (and markdown-display-remote-images valid-url)
+		      (setq file (markdown--get-remote-image download-file))
+		    (when (not valid-url)
+		      ;; strip query parameter
+		      (setq file (replace-regexp-in-string "?.+\\'" "" file))
+		      (unless (file-exists-p file)
 			(setq file (url-unhex-string file)))))))
-              (when (file-exists-p file)
+	      (when (file-exists-p file)
 		(let* ((abspath (if (file-name-absolute-p file)
-                                    file
-                                  (concat default-directory file)))
-                       (image
+				    file
+				  (concat default-directory file)))
+		       (image
 			(cond ((and markdown-max-image-size
-                                    (image-type-available-p 'imagemagick))
-                               (create-image
+				    (image-type-available-p 'imagemagick))
+			       (create-image
 				abspath 'imagemagick nil
 				:max-width (car markdown-max-image-size)
 				:max-height (cdr markdown-max-image-size)))
-                              (markdown-max-image-size
-                               (create-image abspath nil nil
-                                             :max-width (car markdown-max-image-size)
-                                             :max-height (cdr markdown-max-image-size)))
-                              (t (create-image abspath)))))
-                  (when image
-                    (let ((ov (make-overlay start end)))
-                      (overlay-put ov 'display image)
-                      (overlay-put ov 'face 'default)
-                      (push ov markdown-inline-image-overlays))))))))))))
+			      (markdown-max-image-size
+			       (create-image abspath nil nil
+					     :max-width (car markdown-max-image-size)
+					     :max-height (cdr markdown-max-image-size)))
+			      (t (create-image abspath)))))
+		  (when image
+		    (let ((ov (make-overlay start end)))
+		      (overlay-put ov 'display image)
+		      (overlay-put ov 'face 'default)
+		      (push ov markdown-inline-image-overlays))))))))))))
 (use-package yaml-mode)
 (use-package hcl-mode)
 (use-package typescript-mode)
@@ -801,8 +818,8 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package wgrep)
 
-(use-package tsx-mode
-  :vc (:url "https://github.com/orzechowskid/tsx-mode.el.git" :rev :newest))
+;; (use-package tsx-mode
+;;   :vc (:url "https://github.com/orzechowskid/tsx-mode.el.git" :rev :newest))
 
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -1038,9 +1055,9 @@ or \\[markdown-toggle-inline-images]."
 (use-package lsp-pyright
   :ensure t
   :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp)))
+  :hook ((python-mode python-ts-mode) . (lambda ()
+                                          (require 'lsp-pyright)
+                                          (lsp-deferred)))
   :config
   (setq flycheck-ruff-args '("--output-format=full"))
   )
@@ -1198,6 +1215,8 @@ or \\[markdown-toggle-inline-images]."
          ("\\.prisma\\'" . prisma-ts-mode)
          ;; More modes defined here...
          )
+  :custom
+  (treesit-font-lock-level 4)
   :preface
   (defun os/setup-install-grammars ()
     "Install Tree-sitter grammars if they are absent."
@@ -1252,6 +1271,7 @@ or \\[markdown-toggle-inline-images]."
   ;;            (sh-base-mode . bash-ts-mode)))
   ;;   (add-to-list 'major-mode-remap-alist mapping))
   :config
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (os/setup-install-grammars))
 
 ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
