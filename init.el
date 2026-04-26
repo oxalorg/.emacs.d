@@ -52,6 +52,8 @@
 
 (setq kill-do-not-save-duplicates t)
 
+(setq ffap-machine-p-known 'reject)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
