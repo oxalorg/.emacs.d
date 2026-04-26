@@ -736,17 +736,6 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package yasnippet-snippets)
 
-;; (use-package yasnippet-capf
-;;   :after yasnippet
-;;   :init
-;;   (add-to-list 'completion-at-point-functions #'yasnippet-capf)
-;;   (defun ox/add-yas-capf ()
-;;     (setq-local completion-at-point-functions
-;; 		(cons #'yasnippet-capf
-;;                       (remq #'yasnippet-capf completion-at-point-functions))))
-;;   :hook
-;;   ((prog-mode text-mode) . ox/add-yas-capf))
-
 (use-package company
   :after (yasnippet lsp-mode)
   :config
