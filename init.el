@@ -597,9 +597,6 @@ or \\[markdown-toggle-inline-images]."
 (set-fontset-font t 'symbol "Symbola" nil 'append)
 
 (use-package emojify)
-;; (use-package gitmoji
-;;   :ensure nil
-;;   :load-path "~/projects/emacs-gitmoji")
 
 (use-package default-text-scale
   :config
