@@ -137,10 +137,6 @@
   :vc (:url "https://github.com/plexus/plexmacs.git" :rev :newest
 	    :lisp-dir "pprint-to-buffer/"))
 
-(defmacro corgi-use-package (package)
-  `(use-package ,package
-     :load-path ,(concat "~/projects/corgi-packages/" (symbol-name package) "/")))
-
 ;; Editor capabilities, inlined from corgi-editor
 (use-package diminish
   :diminish
@@ -211,10 +207,14 @@
     (add-hook 'window-buffer-change-functions #'corgi-editor/-on-buffer-change)
   (add-hook 'post-command-hook #'corgi-editor/-on-buffer-change))
 
+(defmacro corgi-use-package (package)
+  `(use-package ,package
+     :load-path ,(concat "~/projects/corgi-packages/" (symbol-name package) "/")))
+
 (corgi-use-package corgi-commands)
 (corgi-use-package corgi-clojure)
 (corgi-use-package corgi-emacs-lisp)
-(corgi-use-package corgi-stateline)
+;; (corgi-use-package corgi-stateline)
 (corgi-use-package corgi-bindings)
 ;; (use-package corgi-bindings
 ;;   :vc (:url "https://github.com/corgi-emacs/corgi-packages.git" :rev :newest
@@ -456,6 +456,12 @@ or \\[markdown-toggle-inline-images]."
           (lambda ()
             (when (derived-mode-p 'prog-mode)
               (delete-trailing-whitespace))))
+
+(use-package nerd-icons
+  :ensure t
+  :config
+  (unless (find-font (font-spec :family nerd-icons-font-family))
+    (nerd-icons-install-fonts t)))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
