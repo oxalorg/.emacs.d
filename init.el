@@ -1041,19 +1041,6 @@ or \\[markdown-toggle-inline-images]."
   (evil-define-key '(normal visual) cider-repl-mode-map
     (kbd "SPC,") 'evil-switch-to-windows-last-buffer))
 
-;; (defun ox/counsel-rg-change-dir (arg)
-;;   (let ((current-prefix-arg '(4)))
-;;     (counsel-rg ivy-text nil "")))
-
-;; (with-eval-after-load 'counsel
-;;   (setq counsel-rg-base-command "rg -M 240 --with-filename --no-heading --line-number --color never %s || true"))
-
-;; (with-eval-after-load 'ivy
-;;   (with-eval-after-load 'counsel
-;;     (ivy-add-actions
-;;      'counsel-rg
-;;      '(("r" ox/counsel-rg-change-dir "change root directory")))))
-
 (use-package avy
   :ensure t
   :config
