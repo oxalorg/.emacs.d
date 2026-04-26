@@ -804,52 +804,6 @@ or \\[markdown-toggle-inline-images]."
   :init
   (vertico-mode 1))
 
-;; (use-package corfu
-;;   ;; Optional customizations
-;;   :custom
-;;   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-;;   (corfu-auto t)                 ;; Enable auto completion
-;;   (corfu-separator ?_)          ;; Orderless field separator
-;;   (corfu-auto-prefix 2)           ;; Minimum length of prefix for completion
-;;   (corfu-auto-delay 0)            ;; No delay for completion
-;;   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-;;   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-;;   (corfu-preview-current 'insert)    ;; Disable current candidate preview
-;;   (corfu-preselect 'prompt)      ;; Preselect the prompt
-;;   (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-;;   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-;;   (corfu-popupinfo-delay '(0.2 . 0.2))
-;;   :bind (:map corfu-map
-;;               ("S-SPC"      . corfu-insert-separator)
-;;               ("TAB"        . corfu-next)
-;;               ([tab]        . corfu-next)
-;;               ("S-TAB"      . corfu-previous)
-;;               ([backtab]    . corfu-previous)
-;;               ("S-<return>" . corfu-insert)
-;;               ("RET"        . corfu-insert))
-;;   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-;;   ;; :hook ((prog-mode . corfu-mode)
-;;   ;;        (shell-mode . corfu-mode)
-;;   ;;        (eshell-mode . corfu-mode))
-
-;;   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-;;   ;; be used globally (M-/).  See also the customization variable
-;;   ;; `global-corfu-modes' to exclude certain modes.
-;;   :init
-;;   (global-corfu-mode)
-;;   (corfu-history-mode)
-;;   (corfu-popupinfo-mode)
-;;   (corfu-echo-mode)
-;;   :config
-;;   (add-hook 'eshell-mode-hook
-;;             (lambda () (setq-local corfu-quit-at-boundary t
-;;                                    corfu-quit-no-match t
-;;                                    corfu-auto nil)
-;;               (corfu-mode))
-;;             nil
-;;             t)
-;;   )
-
 ;; Add extensions
 ;; (use-package cape
 ;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
