@@ -845,12 +845,6 @@ or \\[markdown-toggle-inline-images]."
   (completion-styles '(orderless partial-completion basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
-;; ;; Define a function to paste text
-;; (defun my-paste ()
-;;   "Paste text."
-;;   (interactive)
-;;   (yank))
-
 (use-package flycheck
   :ensure t
   :pin melpa
@@ -865,16 +859,6 @@ or \\[markdown-toggle-inline-images]."
   :after flycheck
   :config
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
-
-;; ;; (define-key input-decode-map (kbd "M-v") 'my-paste-from-clipboard)
-;; ;; (defun my-paste-from-clipboard ()
-;; ;;   "Paste from clipboard in Evil normal and insert modes."
-;; ;;   (interactive)
-;; ;;   (if (not (evil-insert-state-p))
-;; ;;       (progn
-;; ;;         (evil-normal-state)
-;; ;;         (evil-paste-after))
-;; ;;     (yank)))
 
 (setq bash-allowed-shells '(sh bash zsh))
 
