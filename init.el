@@ -1406,17 +1406,6 @@ TARGET-DIR is the directory path selected via file picker."
     (message "Successfully cloned %s to %s" repo-name clone-path)
     clone-path))
 
-;; ;; For some reason, this was being called twice without the guard.
-;; (with-eval-after-load 'magit-diff
-;;   (unless (boundp 'aankh/added-magit-diff-suffixes)
-;;     (transient-append-suffix 'magit-diff '(-1 -1)
-;;       [("l" "Toggle magit-delta" aankh/toggle-magit-delta)
-;;        ;; ("D" "Difftastic Diff (dwim)" th/magit-diff-with-difftastic)
-;;        ;; ("S" "Difftastic Show" th/magit-show-with-difftastic)
-;;        ]))
-;;   (setf aankh/added-magit-diff-suffixes t))
-
-
 ;; Load the tailwind cheatsheet on demand instead of at startup.
 (autoload 'tailwind-cheatsheet
   (expand-file-name "tailwind_cheatsheet.el" user-emacs-directory)
