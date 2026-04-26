@@ -1023,7 +1023,7 @@ or \\[markdown-toggle-inline-images]."
            js-ts-mode) . lsp-deferred)
 	 )
   :custom
-  (setq lsp-completion-provider :none)       ;; Using Corfu as the provider
+  (lsp-completion-provider :none)       ;; Using Corfu as the provider
   (lsp-diagnostics-provider :flycheck)
   (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
   (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
