@@ -1006,6 +1006,8 @@ or \\[markdown-toggle-inline-images]."
 ;; ;;         (evil-paste-after))
 ;; ;;     (yank)))
 
+(setq bash-allowed-shells '(sh bash zsh))
+
 (use-package lsp-mode
   :ensure t
   :hook (
@@ -1084,7 +1086,6 @@ or \\[markdown-toggle-inline-images]."
   ;; (setq xref-show-xrefs-function #'xref-show-definitions-completing-read)
   (setq xref-show-definitions-function #'consult-xref)
   (setq xref-show-xrefs-function #'consult-xref)
-  (setq bash-allowed-shells '(sh bash zsh))
   (setq lsp-copilot-applicable-fn
 	(lambda (buf-name buf-mode)
           (pcase buf-mode
