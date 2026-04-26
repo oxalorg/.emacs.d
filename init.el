@@ -59,7 +59,10 @@
   (when (memq window-system '(mac ns x pgtk))
     (exec-path-from-shell-initialize)))
 
+(use-package undo-fu)
+
 (use-package evil
+  :after (undo-fu)
   :init
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
@@ -70,6 +73,15 @@
   (setq save-interprogram-paste-before-kill t)
   :config
   (evil-mode t)
+  (evil-set-undo-system 'undo-fu)
+  (setq evil-move-cursor-back nil
+        evil-move-beyond-eol t
+        evil-want-fine-undo t
+        evil-mode-line-format 'before
+        evil-normal-state-cursor '(box "orange")
+        evil-insert-state-cursor '(box "green")
+        evil-visual-state-cursor '(box "#F86155")
+        evil-emacs-state-cursor  '(box "purple"))
 
   ;; Use wl-paste for clipboard on Wayland
   (when (and (getenv "WAYLAND_DISPLAY")
@@ -86,6 +98,7 @@
   ;; (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   ;; (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
+  ;; Prevent evil-motion-state from shadowing previous/next sexp
   (require 'evil-maps)
   (define-key evil-motion-state-map "L" nil)
   (define-key evil-motion-state-map "M" nil)
@@ -128,7 +141,76 @@
   `(use-package ,package
      :load-path ,(concat "~/projects/corgi-packages/" (symbol-name package) "/")))
 
-(corgi-use-package corgi-editor)
+;; Editor capabilities, inlined from corgi-editor
+(use-package diminish
+  :diminish
+  elisp-slime-nav-mode
+  eldoc-mode
+  subword-mode)
+
+(use-package evil-surround
+  :config (global-evil-surround-mode 1))
+
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode 1)
+  (setq which-key-sort-order 'which-key-prefix-then-key-order))
+
+(use-package winum
+  :config (winum-mode 1))
+
+(use-package smartparens
+  :init (require 'smartparens-config)
+  :diminish smartparens-mode
+  :hook (prog-mode . smartparens-mode))
+
+(use-package aggressive-indent
+  :diminish aggressive-indent-mode
+  :hook ((clojurex-mode
+          clojurescript-mode
+          clojurec-mode
+          clojure-mode
+          emacs-lisp-mode
+          lisp-data-mode
+          js-mode
+          piglet-mode)
+         . aggressive-indent-mode))
+
+(use-package rainbow-delimiters
+  :hook ((cider-repl-mode
+          clojurex-mode
+          clojurescript-mode
+          clojurec-mode
+          clojure-mode
+          emacs-lisp-mode
+          lisp-data-mode
+          inferior-emacs-lisp-mode)
+         . rainbow-delimiters-mode))
+
+(use-package string-edit-at-point)
+
+(when (and (not (display-graphic-p))
+           (executable-find "xclip"))
+  (use-package xclip
+    :config
+    (when (executable-find xclip-program)
+      (with-no-warnings
+        (xclip-mode t)))))
+
+(defvar corgi-editor--last-buffer nil
+  "The last current buffer.")
+
+(defun corgi-editor/-on-buffer-change (&optional _win)
+  (unless (or (and (minibufferp) (not evil-want-minibuffer))
+              (eq (current-buffer) corgi-editor--last-buffer))
+    (setq corgi-editor--last-buffer (current-buffer))
+    (evil-change-to-initial-state)))
+
+(if (boundp 'window-buffer-change-functions)
+    (add-hook 'window-buffer-change-functions #'corgi-editor/-on-buffer-change)
+  (add-hook 'post-command-hook #'corgi-editor/-on-buffer-change))
+
 (corgi-use-package corgi-commands)
 (corgi-use-package corgi-clojure)
 (corgi-use-package corgi-emacs-lisp)
@@ -490,7 +572,7 @@ or \\[markdown-toggle-inline-images]."
   (global-evil-mc-mode 1))
 
 (use-package evil-cleverparens
-  :after (evil)
+  :after (evil smartparens)
   :commands evil-cleverparens-mode
   :hook ((clojure-mode . evil-cleverparens-mode)
 	 (emacs-lisp-mode . evil-cleverparens-mode))
@@ -511,6 +593,7 @@ or \\[markdown-toggle-inline-images]."
 (use-package evil-collection
   :after evil
   :ensure t
+  :diminish evil-collection-unimpaired-mode
   :config
   (evil-collection-init))
 
