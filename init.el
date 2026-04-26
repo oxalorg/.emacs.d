@@ -56,6 +56,8 @@
 
 (setq window-combination-resize t)
 
+(setq help-window-select t)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
