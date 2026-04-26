@@ -464,9 +464,6 @@ or \\[markdown-toggle-inline-images]."
 ;;(require 'corgi-clojure-cider-extras)
 ;;(require 'corgi-cider-connection-indicator)
 
-(setq cider-connection-message-fn
-      nil )
-
 (setq recentf-max-saved-items 100)
 
 ;; (when (executable-find "bb")
@@ -1199,7 +1196,8 @@ or \\[markdown-toggle-inline-images]."
   :init
   (setq cider-dynamic-indentation nil
 	cider-font-lock-dynamically nil
-	cider-font-lock-reader-conditionals nil)
+	cider-font-lock-reader-conditionals nil
+	cider-connection-message-fn nil)
   (setq cider-clojure-cli-global-options "")
   :config
   (evil-define-key '(normal visual) cider-repl-mode-map
