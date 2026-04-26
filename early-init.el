@@ -7,6 +7,8 @@
 
 (setq package-enable-at-startup nil)
 
+(setq native-comp-async-report-warnings-errors 'silent)
+
 (set-language-environment "UTF-8")
 
 (add-hook 'emacs-startup-hook
