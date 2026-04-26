@@ -983,7 +983,9 @@ or \\[markdown-toggle-inline-images]."
 (use-package flycheck
   :ensure t
   :pin melpa
-  :init (global-flycheck-mode))
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-ruff-args '("--output-format=full")))
 
 (use-package consult-flycheck)
 
@@ -1129,10 +1131,7 @@ or \\[markdown-toggle-inline-images]."
   :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
   :hook ((python-mode python-ts-mode) . (lambda ()
                                           (require 'lsp-pyright)
-                                          (lsp-deferred)))
-  :config
-  (setq flycheck-ruff-args '("--output-format=full"))
-  )
+                                          (lsp-deferred))))
 
 (use-package treemacs
   :ensure t
