@@ -753,16 +753,11 @@ or \\[markdown-toggle-inline-images]."
   (css-indent-offset 2))
 
 (use-package web-mode
-  ;;   :mode (("\\.js\\'" . web-mode)
-  ;; 	 ("\\.jsx\\'" .  web-mode)
-  ;; 	 ("\\.ts\\'" . web-mode)
-  ;; 	 ("\\.tsx\\'" . web-mode)
-  ;; 	 ("\\.html\\'" . web-mode))
+  :mode "\\.svelte\\'"
   :config
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode)))
+  (setq web-mode-css-indent-offset 2))
 
 (use-package dotenv-mode)
 (use-package git-timemachine)
