@@ -1651,9 +1651,10 @@ TARGET-DIR is the directory path selected via file picker."
 ;;   (setf aankh/added-magit-diff-suffixes t))
 
 
-(message "[ox] loading tailwind cheatsheet...")
-(load-file (expand-file-name (concat user-emacs-directory "/tailwind_cheatsheet.el")))
-(message "[ox] tailwind cheatsheet loaded")
+;; Load the tailwind cheatsheet on demand instead of at startup.
+(autoload 'tailwind-cheatsheet
+  (expand-file-name "tailwind_cheatsheet.el" user-emacs-directory)
+  "Insert a Tailwind utility/CSS pair via completing-read." t)
 
 (message "[ox] init.el finished loading.")
 
