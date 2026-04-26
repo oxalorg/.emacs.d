@@ -456,6 +456,9 @@ or \\[markdown-toggle-inline-images]."
             (when (derived-mode-p 'prog-mode)
               (delete-trailing-whitespace))))
 
+(add-hook 'after-save-hook
+          #'executable-make-buffer-file-executable-if-script-p)
+
 (use-package nerd-icons
   :ensure t
   :config
