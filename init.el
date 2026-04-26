@@ -441,19 +441,7 @@ or \\[markdown-toggle-inline-images]."
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
 
-;;(require 'corgi-clojure-cider-extras)
-;;(require 'corgi-cider-connection-indicator)
-
 (setq recentf-max-saved-items 100)
-
-;; (when (executable-find "bb")
-;;   (corgi/cider-jack-in-babashka))
-;; (run-at-time nil (* 5 60) 'recentf-save-list)
-;; (corgi/enable-cider-connection-indicator)
-
-;; cider-connected-hook
-
-;; clojure-mode
 
 (use-package inf-clojure)
 (use-package clj-refactor
