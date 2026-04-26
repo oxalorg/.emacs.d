@@ -1075,7 +1075,6 @@ or \\[markdown-toggle-inline-images]."
   (setenv "PATH" (concat
                   "/usr/local/bin" path-separator
                   (getenv "PATH")))
-  (setq lsp-enable-indentation nil)
   (dolist (m '(clojure-mode
                clojurec-mode
                clojurescript-mode
