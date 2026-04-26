@@ -646,10 +646,10 @@ or \\[markdown-toggle-inline-images]."
   :vc (:url "https://github.com/plexus/html-to-hiccup.git" :rev :newest))
 
 (message "loading secrets...")
-(let ((secrets-file (expand-file-name (concat user-emacs-directory "/secrets.el"))))
+(let ((secrets-file (expand-file-name "secrets.el" user-emacs-directory)))
   (when (file-exists-p secrets-file)
-     (load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
-     (message "secrets loaded")))
+    (load-file secrets-file)
+    (message "secrets loaded")))
 
 (defun ox/journal-open-dir ()
   "Open the ~/projects/org directory using Projectile."
