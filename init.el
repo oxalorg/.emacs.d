@@ -27,10 +27,6 @@
 
 (message "ox's emacs initializing...")
 
-;; Allow Ctrl-u to scroll up a page like vim
-(setq evil-want-C-u-scroll t)
-(setq evil-want-keybinding nil)
-
 ;; set relative file numbers
 (setq display-line-numbers-type 'relative)
 
