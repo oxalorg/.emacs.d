@@ -1251,38 +1251,6 @@ mismatched parens are changed based on the left one."
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
 
-;; (use-package evil-swap-keys
-;;   :after (evil)
-;;   :config
-;;   (evil-swap-keys-add-pair "9" "(")
-;;   (evil-swap-keys-add-pair "0" ")"))
-
-;; I use parens so much that it makes sense to make them easier to type
-;; (general-define-key
-;;  :states 'insert
-;;  "9" 'ox/left-paren-call
-;;  "0" 'ox/right-paren-call
-;;  "(" (lambda () (interactive) (insert "9"))
-;;  ")" (lambda () (interactive) (insert "0")))
-
-;; (evil-define-key 'insert 'global
-;; (kbd "9") 'ox/left-paren-call
-;; (kbd "0") 'ox/right-paren-call
-;; (kbd "(") (lambda () (interactive) (insert "9"))
-;; (kbd ")") (lambda () (interactive) (insert "0"))
-;; )
-
-;; (use-package magit-delta
-;;   :hook (magit-mode . magit-delta-mode))
-
-;; (defun ox/magit-delta-toggle ()
-;;   (interactive)
-;;   (magit-delta-mode
-;;    (if magit-delta-mode
-;;        -1
-;;      1))
-;;   (magit-refresh))
-
 (defun genox/screenshot-from-clipboard ()
   "Save clipboard image to a uniquely named file in ../media/
 relative to current file, and insert a markdown image link."
