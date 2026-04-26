@@ -627,7 +627,9 @@ or \\[markdown-toggle-inline-images]."
 (use-package vundo)
 
 ;; Configure common Emoji fonts, making it more likely that Emoji will work out of the box
-(set-fontset-font t 'symbol "Apple Color Emoji")
+(if (eq system-type 'darwin)
+    (set-fontset-font t 'symbol "Apple Color Emoji")
+  (set-fontset-font t 'symbol "Noto Color Emoji"))
 (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
 (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
 (set-fontset-font t 'symbol "Symbola" nil 'append)
