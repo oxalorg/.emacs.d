@@ -39,8 +39,9 @@
 (setopt use-short-answers t)
 (setq byte-compile-warnings '(not obsolete))
 
-(setq trash-directory "~/.Trash")
 (setq delete-by-moving-to-trash t)
+(when (eq system-type 'darwin)
+  (setq trash-directory "~/.Trash"))
 
 ;; See `trash-directory' as it requires defining `system-move-file-to-trash'.
 ;; (defun system-move-file-to-trash (file)
