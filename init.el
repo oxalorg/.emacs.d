@@ -410,14 +410,6 @@ or \\[markdown-toggle-inline-images]."
 (set-register ?P "#_cljs (user/portal)")
 (set-register ?z "#_clj (do (user/pathom-reload-env) nil)")
 
-;; (use-package color-theme-sanityinc-tomorrow
-;;   :config
-;;   (load-theme 'sanityinc-tomorrow-night t))
-
-;; (use-package cherry-blossom-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'cherry-blossom t))
 (use-package doom-themes
   :ensure t
   :custom
