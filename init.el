@@ -835,11 +835,6 @@ or \\[markdown-toggle-inline-images]."
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-;; (use-package savehist
-;;   :init
-;;   (savehist-mode))
-
 (use-package orderless
   :ensure t
   :init
