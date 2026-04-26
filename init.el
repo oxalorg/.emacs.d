@@ -459,6 +459,11 @@ or \\[markdown-toggle-inline-images]."
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 
+(save-place-mode 1)
+(advice-add 'save-place-find-file-hook :after
+            (lambda (&rest _)
+              (when buffer-file-name (ignore-errors (recenter)))))
+
 (use-package nerd-icons
   :ensure t
   :config
