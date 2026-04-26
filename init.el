@@ -1413,9 +1413,5 @@ TARGET-DIR is the directory path selected via file picker."
 
 (message "[ox] init.el finished loading.")
 
-;; First, install dired-hacks
-;; Add to your init.el and run M-x package-install RET dired-hacks RET
-;; (require 'dired-hacks-utils) ; or whichever dired-hacks modules you want
-
 (provide 'init)
-;;; local.ox.el ends here
+;;; init.el ends here
