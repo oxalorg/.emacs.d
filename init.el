@@ -911,15 +911,6 @@ or \\[markdown-toggle-inline-images]."
   :config
   (setq consult-narrow-key "<"))
 
-(use-package vertico
-  :custom
-  ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (vertico-count 20) ;; Show more candidates
-  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  ;; (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
-  :init
-  (vertico-mode 1))
-
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
