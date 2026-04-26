@@ -300,7 +300,10 @@
         org-download-image-dir "media"
         org-download-heading-lvl nil  ;; Don't nest by headline
         org-download-timestamp "%Y-%m-%d_%H-%M-%S"
-        org-download-screenshot-method "pngpaste %s") ;; macOS clipboard
+        org-download-screenshot-method
+        (cond ((eq system-type 'darwin) "pngpaste %s")
+              ((getenv "WAYLAND_DISPLAY") "wl-paste -t image/png > %s")
+              (t "xclip -selection clipboard -t image/png -o > %s")))
   (add-hook 'dired-mode-hook 'org-download-enable))
 (use-package writeroom-mode)
 (use-package org-modern)
