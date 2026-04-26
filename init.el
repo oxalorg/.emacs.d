@@ -54,6 +54,8 @@
 
 (setq ffap-machine-p-known 'reject)
 
+(setq window-combination-resize t)
+
 (setq delete-by-moving-to-trash t)
 (when (eq system-type 'darwin)
   (setq trash-directory "~/.Trash"))
