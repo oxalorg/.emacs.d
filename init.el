@@ -492,11 +492,6 @@ or \\[markdown-toggle-inline-images]."
   (cider-eval-defun-at-point)
   (cider-test-run-test))
 
-;; (eval-after-load 'projectile
-;;   (setq projectile-project-root-files-bottom-up
-;;         (cons "deps.edn"
-;;               projectile-project-root-files-bottom-up)))
-
 ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
 ;; that you can always see what's happening.
 (setq eval-expression-print-level nil)
