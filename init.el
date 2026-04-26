@@ -1025,20 +1025,6 @@ or \\[markdown-toggle-inline-images]."
   (setq claude-code-ide-terminal-backend 'vterm)
   (claude-code-ide-emacs-tools-setup))
 
-;; ;; (add-hook 'evil-insert-state-entry-hook (lambda () (send-string-to-terminal "\033[5 q")))                                                                                    (add-hook 'evil-normal-state-entry-hook (lambda () (send-string-to-terminal "\033[0 q")))
-
-;; ;; `evil-terminal-cursor-changer' utilizes custom terminal escape sequences
-;; ;; (which work in most, but not all, terminals) to adjust the appearance of the
-;; ;; Emacs cursor based on which Vim mode is currently active. Note that this
-;; ;; package is only required when running in a terminal (hence the `unless').
-;; (use-package evil-terminal-cursor-changer
-;;   :config
-;;   (unless (display-graphic-p)
-;;     (require 'evil-terminal-cursor-changer)
-;;     (evil-terminal-cursor-changer-activate)
-;;     (setq evil-insert-state-cursor 'bar)
-;;     ))
-
 (setq-default c-default-style "linux")
 (setq-default c-basic-offset 2)
 
