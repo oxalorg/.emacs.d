@@ -173,7 +173,7 @@
           inferior-emacs-lisp-mode)
          . rainbow-delimiters-mode))
 
-(use-package string-edit-at-point)
+(use-package string-edit-at-point :defer t)
 
 (when (and (not (display-graphic-p))
            (executable-find "xclip"))
@@ -291,8 +291,8 @@
               ((getenv "WAYLAND_DISPLAY") "wl-paste -t image/png > %s")
               (t "xclip -selection clipboard -t image/png -o > %s")))
   (add-hook 'dired-mode-hook 'org-download-enable))
-(use-package writeroom-mode)
-(use-package org-modern)
+(use-package writeroom-mode :defer t)
+(use-package org-modern :defer t)
 (use-package darkroom
   :hook ((darkroom-mode . ox/darkroom-toggle-line-numbers)
 	 (darkroom-tentative-mode . ox/darkroom-toggle-line-numbers))
@@ -307,6 +307,7 @@
       (when (bound-and-true-p ox/darkroom--line-numbers-were)
 	(display-line-numbers-mode 1)))))
 (use-package markdown-mode
+  :defer t
   :init
   (setq markdown-command
         '("pandoc"
@@ -368,17 +369,17 @@ or \\[markdown-toggle-inline-images]."
 		      (overlay-put ov 'display image)
 		      (overlay-put ov 'face 'default)
 		      (push ov markdown-inline-image-overlays))))))))))))
-(use-package yaml-mode)
-(use-package hcl-mode)
-(use-package typescript-mode)
-(use-package dockerfile-mode)
-(use-package groovy-mode)
-(use-package buttercup)
-(use-package rainbow-mode)
-(use-package pkg-info)
-(use-package goto-last-change)
-(use-package dumb-jump)
-(use-package expand-region)
+(use-package yaml-mode :defer t)
+(use-package hcl-mode :defer t)
+(use-package typescript-mode :defer t)
+(use-package dockerfile-mode :defer t)
+(use-package groovy-mode :defer t)
+(use-package buttercup :defer t)
+(use-package rainbow-mode :defer t)
+(use-package pkg-info :defer t)
+(use-package goto-last-change :defer t)
+(use-package dumb-jump :defer t)
+(use-package expand-region :defer t)
 
 ;; Offer to create parent directories if they do not exist
 ;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
@@ -445,7 +446,7 @@ or \\[markdown-toggle-inline-images]."
 
 (setq recentf-max-saved-items 100)
 
-(use-package inf-clojure)
+(use-package inf-clojure :defer t)
 (use-package clj-refactor
   :after (cider)
   :diminish clj-refactor-mode
@@ -461,13 +462,13 @@ or \\[markdown-toggle-inline-images]."
           clojure-mode-hook)
          . clj-refactor-mode))
 
-(use-package visual-fill-column)
+(use-package visual-fill-column :defer t)
 
 (use-package flycheck-clj-kondo
   :ensure t
   :after flycheck)
 
-(use-package zprint-mode)
+(use-package zprint-mode :defer t)
 
 (with-eval-after-load 'clojure-mode
   (with-current-buffer (get-buffer-create "*scratch-clj*")
@@ -564,7 +565,7 @@ or \\[markdown-toggle-inline-images]."
 ;; command-log-mode is useful for displaying a panel showing each key binding
 ;; you use in a panel on the right side of the frame. Great for live streams and
 ;; screencasts!
-(use-package command-log-mode)
+(use-package command-log-mode :defer t)
 
 (use-package forge
   :after magit
@@ -584,11 +585,12 @@ or \\[markdown-toggle-inline-images]."
      ]))
 
 (use-package git-link
+  :defer t
   :config
   (setq git-link-open-in-browser t
         git-link-use-commit t))
 
-(use-package vundo)
+(use-package vundo :defer t)
 
 ;; Configure common Emoji fonts, making it more likely that Emoji will work out of the box
 (if (eq system-type 'darwin)
@@ -598,13 +600,15 @@ or \\[markdown-toggle-inline-images]."
 (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
 (set-fontset-font t 'symbol "Symbola" nil 'append)
 
-(use-package emojify)
+(use-package emojify :defer t)
 
 (use-package default-text-scale
+  :defer t
   :config
   (setq default-text-scale-amount 20))
 
 (use-package html-to-hiccup
+  :defer t
   :vc (:url "https://github.com/plexus/html-to-hiccup.git" :rev :newest))
 
 (message "loading secrets...")
@@ -709,7 +713,7 @@ or \\[markdown-toggle-inline-images]."
   (setq exec-path (cons (expand-file-name "bin" erlang-root-dir) exec-path))
   (setq erlang-man-root-dir (expand-file-name "man" erlang-root-dir)))
 
-(use-package just-mode)
+(use-package just-mode :defer t)
 
 (use-package css-mode
   :mode ("\\.css\\'" "\\.scss\\'")
@@ -724,12 +728,13 @@ or \\[markdown-toggle-inline-images]."
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-css-indent-offset 2))
 
-(use-package dotenv-mode)
-(use-package git-timemachine)
-(use-package coverlay)
-(use-package origami)
+(use-package dotenv-mode :defer t)
+(use-package git-timemachine :defer t)
+(use-package coverlay :defer t)
+(use-package origami :defer t)
 
 (use-package css-in-js-mode
+  :defer t
   :vc (:url "https://github.com/orzechowskid/tree-sitter-css-in-js.git" :rev :newest))
 
 (use-package yasnippet
@@ -778,7 +783,7 @@ or \\[markdown-toggle-inline-images]."
   ;; useful beyond Corfu.
   (read-extended-command-predicate #'command-completion-default-include-p))
 
-(use-package wgrep)
+(use-package wgrep :defer t)
 
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -854,7 +859,7 @@ or \\[markdown-toggle-inline-images]."
   :config
   (setq flycheck-ruff-args '("--output-format=full")))
 
-(use-package consult-flycheck)
+(use-package consult-flycheck :defer t)
 
 (use-package flycheck-rust
   :ensure t
@@ -1007,7 +1012,7 @@ or \\[markdown-toggle-inline-images]."
   :after (treemacs evil lsp-mode)
   :ensure t)
 
-(use-package gptel)
+(use-package gptel :defer t)
 
 ;; Emacs 30+ built-in use-package with :vc
 (use-package eat
@@ -1052,7 +1057,7 @@ or \\[markdown-toggle-inline-images]."
   (evil-define-key nil evil-normal-state-map
     "s" 'avy-goto-char-2))
 
-(use-package devdocs)
+(use-package devdocs :defer t)
 
 (when (file-exists-p "~/projects/clojuredocs.el")
   (use-package clojuredocs
@@ -1072,15 +1077,15 @@ or \\[markdown-toggle-inline-images]."
         ("S" "Difftastic show" difftastic-magit-show)])))
 
 
-(use-package harpoon)
+(use-package harpoon :defer t)
 
-(use-package haskell-mode)
+(use-package haskell-mode :defer t)
 
-(use-package zig-mode)
+(use-package zig-mode :defer t)
 
-(use-package terraform-mode)
+(use-package terraform-mode :defer t)
 
-(use-package rust-mode)
+(use-package rust-mode :defer t)
 
 (use-package go-ts-mode
   :ensure nil
