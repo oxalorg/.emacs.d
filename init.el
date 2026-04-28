@@ -27,10 +27,6 @@
 
 (message "ox's emacs initializing...")
 
-;; Allow Ctrl-u to scroll up a page like vim
-(setq evil-want-C-u-scroll t)
-(setq evil-want-keybinding nil)
-
 ;; set relative file numbers
 (setq display-line-numbers-type 'relative)
 
@@ -43,15 +39,44 @@
 (setopt use-short-answers t)
 (setq byte-compile-warnings '(not obsolete))
 
-(setq trash-directory "~/.Trash")
-(setq delete-by-moving-to-trash t)
+(setq read-process-output-max (* 4 1024 1024)) ; 4mb, headroom for chatty LSP servers
 
-;; See `trash-directory' as it requires defining `system-move-file-to-trash'.
-;; (defun system-move-file-to-trash (file)
-;;   "Use \"trash\" to move FILE to the system trash."
-;;   (message "calling trash")
-;;   (cl-assert (executable-find "trash") nil "'trash' must be installed. Needs \"brew install trash\"")
-;;   (call-process "trash" nil 0 nil "-F"  file))
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+
+(setq redisplay-skip-fontification-on-input t)
+
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+(setq kill-do-not-save-duplicates t)
+
+(setq ffap-machine-p-known 'reject)
+
+(setq window-combination-resize t)
+
+(winner-mode +1)
+
+(defun toggle-delete-other-windows ()
+  "Delete other windows in frame if any, or restore previous window config."
+  (interactive)
+  (if (and winner-mode
+           (equal (selected-window) (next-window)))
+      (winner-undo)
+    (delete-other-windows)))
+
+(global-set-key (kbd "C-x 1") #'toggle-delete-other-windows)
+
+(setq help-window-select t)
+
+(setq set-mark-command-repeat-pop t)
+
+(setq reb-re-syntax 'string)
+
+(setq delete-by-moving-to-trash t)
+(when (eq system-type 'darwin)
+  (setq trash-directory "~/.Trash"))
 
 ;; Unfortunately emacs launched from `.app` launcher does not get the full exec path which our shell has. Let's fix that
 (use-package exec-path-from-shell
@@ -126,9 +151,6 @@
 (use-package walkclj
   :vc (:url "https://github.com/corgi-emacs/walkclj.git" :rev :newest))
 
-;; (use-package buffer-box
-;;   :vc (:url "https://github.com/rougier/buffer-box.git" :rev :newest))
-
 (use-package clj-ns-name
   :after (projectile walkclj)
   :vc (:url "https://github.com/corgi-emacs/clj-ns-name.git" :rev :newest))
@@ -184,7 +206,7 @@
           inferior-emacs-lisp-mode)
          . rainbow-delimiters-mode))
 
-(use-package string-edit-at-point)
+(use-package string-edit-at-point :defer t)
 
 (when (and (not (display-graphic-p))
            (executable-find "xclip"))
@@ -214,11 +236,7 @@
 (corgi-use-package corgi-commands)
 (corgi-use-package corgi-clojure)
 (corgi-use-package corgi-emacs-lisp)
-;; (corgi-use-package corgi-stateline)
 (corgi-use-package corgi-bindings)
-;; (use-package corgi-bindings
-;;   :vc (:url "https://github.com/corgi-emacs/corgi-packages.git" :rev :newest
-;; 	    :lisp-dir "corgi-bindings/"))
 
 (use-package corkey
   :vc (:url "https://github.com/corgi-emacs/corkey.git" :rev :newest)
@@ -284,8 +302,6 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t))))
-;; (use-package org-modern
-;;   :hook '(org-mode-hook . org-modern-mode))
 (use-package org-autolist
   :hook (org-mode . org-autolist-mode))
 (use-package org-journal
@@ -303,10 +319,13 @@
         org-download-image-dir "media"
         org-download-heading-lvl nil  ;; Don't nest by headline
         org-download-timestamp "%Y-%m-%d_%H-%M-%S"
-        org-download-screenshot-method "pngpaste %s") ;; macOS clipboard
+        org-download-screenshot-method
+        (cond ((eq system-type 'darwin) "pngpaste %s")
+              ((getenv "WAYLAND_DISPLAY") "wl-paste -t image/png > %s")
+              (t "xclip -selection clipboard -t image/png -o > %s")))
   (add-hook 'dired-mode-hook 'org-download-enable))
-(use-package writeroom-mode)
-(use-package org-modern)
+(use-package writeroom-mode :defer t)
+(use-package org-modern :defer t)
 (use-package darkroom
   :hook ((darkroom-mode . ox/darkroom-toggle-line-numbers)
 	 (darkroom-tentative-mode . ox/darkroom-toggle-line-numbers))
@@ -321,6 +340,7 @@
       (when (bound-and-true-p ox/darkroom--line-numbers-were)
 	(display-line-numbers-mode 1)))))
 (use-package markdown-mode
+  :defer t
   :init
   (setq markdown-command
         '("pandoc"
@@ -382,17 +402,17 @@ or \\[markdown-toggle-inline-images]."
 		      (overlay-put ov 'display image)
 		      (overlay-put ov 'face 'default)
 		      (push ov markdown-inline-image-overlays))))))))))))
-(use-package yaml-mode)
-(use-package hcl-mode)
-(use-package typescript-mode)
-(use-package dockerfile-mode)
-(use-package groovy-mode)
-(use-package buttercup)
-(use-package rainbow-mode)
-(use-package pkg-info)
-(use-package goto-last-change)
-(use-package dumb-jump)
-(use-package expand-region)
+(use-package yaml-mode :defer t)
+(use-package hcl-mode :defer t)
+(use-package typescript-mode :defer t)
+(use-package dockerfile-mode :defer t)
+(use-package groovy-mode :defer t)
+(use-package buttercup :defer t)
+(use-package rainbow-mode :defer t)
+(use-package pkg-info :defer t)
+(use-package goto-last-change :defer t)
+(use-package dumb-jump :defer t)
+(use-package expand-region :defer t)
 
 ;; Offer to create parent directories if they do not exist
 ;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
@@ -409,7 +429,6 @@ or \\[markdown-toggle-inline-images]."
            (not (server-running-p server-name)))
   (server-start))
 (global-display-line-numbers-mode 1)
-(setq display-line-numbers 'fixed)
 
 (setq tramp-default-method "ssh")
 
@@ -427,14 +446,6 @@ or \\[markdown-toggle-inline-images]."
 (set-register ?P "#_cljs (user/portal)")
 (set-register ?z "#_clj (do (user/pathom-reload-env) nil)")
 
-;; (use-package color-theme-sanityinc-tomorrow
-;;   :config
-;;   (load-theme 'sanityinc-tomorrow-night t))
-
-;; (use-package cherry-blossom-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'cherry-blossom t))
 (use-package doom-themes
   :ensure t
   :custom
@@ -457,6 +468,14 @@ or \\[markdown-toggle-inline-images]."
             (when (derived-mode-p 'prog-mode)
               (delete-trailing-whitespace))))
 
+(add-hook 'after-save-hook
+          #'executable-make-buffer-file-executable-if-script-p)
+
+(save-place-mode 1)
+(advice-add 'save-place-find-file-hook :after
+            (lambda (&rest _)
+              (when buffer-file-name (ignore-errors (recenter)))))
+
 (use-package nerd-icons
   :ensure t
   :config
@@ -466,24 +485,9 @@ or \\[markdown-toggle-inline-images]."
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
 
-;;(require 'corgi-clojure-cider-extras)
-;;(require 'corgi-cider-connection-indicator)
-
-(setq cider-connection-message-fn
-      nil )
-
 (setq recentf-max-saved-items 100)
 
-;; (when (executable-find "bb")
-;;   (corgi/cider-jack-in-babashka))
-;; (run-at-time nil (* 5 60) 'recentf-save-list)
-;; (corgi/enable-cider-connection-indicator)
-
-;; cider-connected-hook
-
-;; clojure-mode
-
-(use-package inf-clojure)
+(use-package inf-clojure :defer t)
 (use-package clj-refactor
   :after (cider)
   :diminish clj-refactor-mode
@@ -499,13 +503,13 @@ or \\[markdown-toggle-inline-images]."
           clojure-mode-hook)
          . clj-refactor-mode))
 
-(use-package visual-fill-column)
+(use-package visual-fill-column :defer t)
 
 (use-package flycheck-clj-kondo
   :ensure t
   :after flycheck)
 
-(use-package zprint-mode)
+(use-package zprint-mode :defer t)
 
 (with-eval-after-load 'clojure-mode
   (with-current-buffer (get-buffer-create "*scratch-clj*")
@@ -532,21 +536,17 @@ or \\[markdown-toggle-inline-images]."
   (cider-eval-defun-at-point)
   (cider-test-run-test))
 
-;; (eval-after-load 'projectile
-;;   (setq projectile-project-root-files-bottom-up
-;;         (cons "deps.edn"
-;;               projectile-project-root-files-bottom-up)))
-
 ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
 ;; that you can always see what's happening.
 (setq eval-expression-print-level nil)
 
-(setq mac-right-command-modifier 'super)
-(setq mac-command-modifier 'super)
-;; Option or Alt is naturally 'Meta'
-(setq mac-option-modifier 'meta)
-;; Right Alt (option) can be used to enter symbols like em dashes '—' and euros '€' and stuff.
-(setq mac-right-option-modifier 'nil)
+(when (eq system-type 'darwin)
+  (setq mac-right-command-modifier 'super)
+  (setq mac-command-modifier 'super)
+  ;; Option or Alt is naturally 'Meta'
+  (setq mac-option-modifier 'meta)
+  ;; Right Alt (option) can be used to enter symbols like em dashes '—' and euros '€' and stuff.
+  (setq mac-right-option-modifier 'nil))
 
 (global-auto-revert-mode t)
 
@@ -606,7 +606,7 @@ or \\[markdown-toggle-inline-images]."
 ;; command-log-mode is useful for displaying a panel showing each key binding
 ;; you use in a panel on the right side of the frame. Great for live streams and
 ;; screencasts!
-(use-package command-log-mode)
+(use-package command-log-mode :defer t)
 
 (use-package forge
   :after magit
@@ -626,35 +626,37 @@ or \\[markdown-toggle-inline-images]."
      ]))
 
 (use-package git-link
+  :defer t
   :config
   (setq git-link-open-in-browser t
         git-link-use-commit t))
 
-(use-package vundo)
+(use-package vundo :defer t)
 
 ;; Configure common Emoji fonts, making it more likely that Emoji will work out of the box
-(set-fontset-font t 'symbol "Apple Color Emoji")
+(if (eq system-type 'darwin)
+    (set-fontset-font t 'symbol "Apple Color Emoji")
+  (set-fontset-font t 'symbol "Noto Color Emoji"))
 (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
 (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
 (set-fontset-font t 'symbol "Symbola" nil 'append)
 
-(use-package emojify)
-;; (use-package gitmoji
-;;   :ensure nil
-;;   :load-path "~/projects/emacs-gitmoji")
+(use-package emojify :defer t)
 
 (use-package default-text-scale
+  :defer t
   :config
   (setq default-text-scale-amount 20))
 
 (use-package html-to-hiccup
+  :defer t
   :vc (:url "https://github.com/plexus/html-to-hiccup.git" :rev :newest))
 
 (message "loading secrets...")
-(let ((secrets-file (expand-file-name (concat user-emacs-directory "/secrets.el"))))
+(let ((secrets-file (expand-file-name "secrets.el" user-emacs-directory)))
   (when (file-exists-p secrets-file)
-     (load-file (expand-file-name (concat user-emacs-directory "/secrets.el")))
-     (message "secrets loaded")))
+    (load-file secrets-file)
+    (message "secrets loaded")))
 
 (defun ox/journal-open-dir ()
   "Open the ~/projects/org directory using Projectile."
@@ -752,7 +754,7 @@ or \\[markdown-toggle-inline-images]."
   (setq exec-path (cons (expand-file-name "bin" erlang-root-dir) exec-path))
   (setq erlang-man-root-dir (expand-file-name "man" erlang-root-dir)))
 
-(use-package just-mode)
+(use-package just-mode :defer t)
 
 (use-package css-mode
   :mode ("\\.css\\'" "\\.scss\\'")
@@ -761,23 +763,19 @@ or \\[markdown-toggle-inline-images]."
   (css-indent-offset 2))
 
 (use-package web-mode
-  ;;   :mode (("\\.js\\'" . web-mode)
-  ;; 	 ("\\.jsx\\'" .  web-mode)
-  ;; 	 ("\\.ts\\'" . web-mode)
-  ;; 	 ("\\.tsx\\'" . web-mode)
-  ;; 	 ("\\.html\\'" . web-mode))
+  :mode "\\.svelte\\'"
   :config
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode)))
+  (setq web-mode-css-indent-offset 2))
 
-(use-package dotenv-mode)
-(use-package git-timemachine)
-(use-package coverlay)
-(use-package origami)
+(use-package dotenv-mode :defer t)
+(use-package git-timemachine :defer t)
+(use-package coverlay :defer t)
+(use-package origami :defer t)
 
 (use-package css-in-js-mode
+  :defer t
   :vc (:url "https://github.com/orzechowskid/tree-sitter-css-in-js.git" :rev :newest))
 
 (use-package yasnippet
@@ -785,17 +783,6 @@ or \\[markdown-toggle-inline-images]."
   (yas-global-mode 1))
 
 (use-package yasnippet-snippets)
-
-;; (use-package yasnippet-capf
-;;   :after yasnippet
-;;   :init
-;;   (add-to-list 'completion-at-point-functions #'yasnippet-capf)
-;;   (defun ox/add-yas-capf ()
-;;     (setq-local completion-at-point-functions
-;; 		(cons #'yasnippet-capf
-;;                       (remq #'yasnippet-capf completion-at-point-functions))))
-;;   :hook
-;;   ((prog-mode text-mode) . ox/add-yas-capf))
 
 (use-package company
   :after (yasnippet lsp-mode)
@@ -817,74 +804,6 @@ or \\[markdown-toggle-inline-images]."
   :init
   (vertico-mode 1))
 
-;; (use-package corfu
-;;   ;; Optional customizations
-;;   :custom
-;;   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-;;   (corfu-auto t)                 ;; Enable auto completion
-;;   (corfu-separator ?_)          ;; Orderless field separator
-;;   (corfu-auto-prefix 2)           ;; Minimum length of prefix for completion
-;;   (corfu-auto-delay 0)            ;; No delay for completion
-;;   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-;;   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-;;   (corfu-preview-current 'insert)    ;; Disable current candidate preview
-;;   (corfu-preselect 'prompt)      ;; Preselect the prompt
-;;   (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-;;   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-;;   (corfu-popupinfo-delay '(0.2 . 0.2))
-;;   :bind (:map corfu-map
-;;               ("S-SPC"      . corfu-insert-separator)
-;;               ("TAB"        . corfu-next)
-;;               ([tab]        . corfu-next)
-;;               ("S-TAB"      . corfu-previous)
-;;               ([backtab]    . corfu-previous)
-;;               ("S-<return>" . corfu-insert)
-;;               ("RET"        . corfu-insert))
-;;   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-;;   ;; :hook ((prog-mode . corfu-mode)
-;;   ;;        (shell-mode . corfu-mode)
-;;   ;;        (eshell-mode . corfu-mode))
-
-;;   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-;;   ;; be used globally (M-/).  See also the customization variable
-;;   ;; `global-corfu-modes' to exclude certain modes.
-;;   :init
-;;   (global-corfu-mode)
-;;   (corfu-history-mode)
-;;   (corfu-popupinfo-mode)
-;;   (corfu-echo-mode)
-;;   :config
-;;   (add-hook 'eshell-mode-hook
-;;             (lambda () (setq-local corfu-quit-at-boundary t
-;;                                    corfu-quit-no-match t
-;;                                    corfu-auto nil)
-;;               (corfu-mode))
-;;             nil
-;;             t)
-;;   )
-
-;; Add extensions
-;; (use-package cape
-;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-;;   ;; Press C-c p ? to for help.
-;;   :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
-;;   ;; Alternatively bind Cape commands individually.
-;;   ;; :bind (("C-c p d" . cape-dabbrev)
-;;   ;;        ("C-c p h" . cape-history)
-;;   ;;        ("C-c p f" . cape-file)
-;;   ;;        ...)
-;;   :init
-;;   ;; Add to the global default value of `completion-at-point-functions' which is
-;;   ;; used by `completion-at-point'.  The order of the functions matters, the
-;;   ;; first function returning a result wins.  Note that the list of buffer-local
-;;   ;; completion functions takes precedence over the global list.
-;;   ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
-;;   ;; (add-hook 'completion-at-point-functions #'cape-file)
-;;   ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
-;;   ;; (add-hook 'completion-at-point-functions #'cape-history)
-;;   ;; ...
-;;   )
-
 ;; A few more useful configurations...
 (use-package emacs
   :ensure nil
@@ -905,24 +824,12 @@ or \\[markdown-toggle-inline-images]."
   ;; useful beyond Corfu.
   (read-extended-command-predicate #'command-completion-default-include-p))
 
-(use-package wgrep)
-
-;; (use-package tsx-mode
-;;   :vc (:url "https://github.com/orzechowskid/tsx-mode.el.git" :rev :newest))
+(use-package wgrep :defer t)
 
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
   (setq consult-narrow-key "<"))
-
-(use-package vertico
-  :custom
-  ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (vertico-count 20) ;; Show more candidates
-  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  ;; (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
-  :init
-  (vertico-mode 1))
 
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
@@ -976,11 +883,6 @@ or \\[markdown-toggle-inline-images]."
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-;; (use-package savehist
-;;   :init
-;;   (savehist-mode))
-
 (use-package orderless
   :ensure t
   :init
@@ -991,18 +893,14 @@ or \\[markdown-toggle-inline-images]."
   (completion-styles '(orderless partial-completion basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
-;; ;; Define a function to paste text
-;; (defun my-paste ()
-;;   "Paste text."
-;;   (interactive)
-;;   (yank))
-
 (use-package flycheck
   :ensure t
   :pin melpa
-  :init (global-flycheck-mode))
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-ruff-args '("--output-format=full")))
 
-(use-package consult-flycheck)
+(use-package consult-flycheck :defer t)
 
 (use-package flycheck-rust
   :ensure t
@@ -1010,15 +908,7 @@ or \\[markdown-toggle-inline-images]."
   :config
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
-;; ;; (define-key input-decode-map (kbd "M-v") 'my-paste-from-clipboard)
-;; ;; (defun my-paste-from-clipboard ()
-;; ;;   "Paste from clipboard in Evil normal and insert modes."
-;; ;;   (interactive)
-;; ;;   (if (not (evil-insert-state-p))
-;; ;;       (progn
-;; ;;         (evil-normal-state)
-;; ;;         (evil-paste-after))
-;; ;;     (yank)))
+(setq bash-allowed-shells '(sh bash zsh))
 
 (use-package lsp-mode
   :ensure t
@@ -1037,7 +927,7 @@ or \\[markdown-toggle-inline-images]."
            js-ts-mode) . lsp-deferred)
 	 )
   :custom
-  (setq lsp-completion-provider :none)       ;; Using Corfu as the provider
+  (lsp-completion-provider :none)       ;; Using Corfu as the provider
   (lsp-diagnostics-provider :flycheck)
   (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
   (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
@@ -1089,7 +979,6 @@ or \\[markdown-toggle-inline-images]."
   (setenv "PATH" (concat
                   "/usr/local/bin" path-separator
                   (getenv "PATH")))
-  (setq lsp-enable-indentation nil)
   (dolist (m '(clojure-mode
                clojurec-mode
                clojurescript-mode
@@ -1099,7 +988,6 @@ or \\[markdown-toggle-inline-images]."
   ;; (setq xref-show-xrefs-function #'xref-show-definitions-completing-read)
   (setq xref-show-definitions-function #'consult-xref)
   (setq xref-show-xrefs-function #'consult-xref)
-  (setq bash-allowed-shells '(sh bash zsh))
   (setq lsp-copilot-applicable-fn
 	(lambda (buf-name buf-mode)
           (pcase buf-mode
@@ -1111,8 +999,6 @@ or \\[markdown-toggle-inline-images]."
             ('emacs-lisp-mode t)
             (t lsp-copilot-enabled))))
   )
-
-;; (add-hook 'typescript-ts-mode 'lsp-mode-hook)
 
 (use-package lsp-ui
   :ensure t
@@ -1146,10 +1032,7 @@ or \\[markdown-toggle-inline-images]."
   :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
   :hook ((python-mode python-ts-mode) . (lambda ()
                                           (require 'lsp-pyright)
-                                          (lsp-deferred)))
-  :config
-  (setq flycheck-ruff-args '("--output-format=full"))
-  )
+                                          (lsp-deferred))))
 
 (use-package treemacs
   :ensure t
@@ -1170,7 +1053,7 @@ or \\[markdown-toggle-inline-images]."
   :after (treemacs evil lsp-mode)
   :ensure t)
 
-(use-package gptel)
+(use-package gptel :defer t)
 
 ;; Emacs 30+ built-in use-package with :vc
 (use-package eat
@@ -1190,20 +1073,6 @@ or \\[markdown-toggle-inline-images]."
   (setq claude-code-ide-terminal-backend 'vterm)
   (claude-code-ide-emacs-tools-setup))
 
-;; ;; (add-hook 'evil-insert-state-entry-hook (lambda () (send-string-to-terminal "\033[5 q")))                                                                                    (add-hook 'evil-normal-state-entry-hook (lambda () (send-string-to-terminal "\033[0 q")))
-
-;; ;; `evil-terminal-cursor-changer' utilizes custom terminal escape sequences
-;; ;; (which work in most, but not all, terminals) to adjust the appearance of the
-;; ;; Emacs cursor based on which Vim mode is currently active. Note that this
-;; ;; package is only required when running in a terminal (hence the `unless').
-;; (use-package evil-terminal-cursor-changer
-;;   :config
-;;   (unless (display-graphic-p)
-;;     (require 'evil-terminal-cursor-changer)
-;;     (evil-terminal-cursor-changer-activate)
-;;     (setq evil-insert-state-cursor 'bar)
-;;     ))
-
 (setq-default c-default-style "linux")
 (setq-default c-basic-offset 2)
 
@@ -1213,24 +1082,12 @@ or \\[markdown-toggle-inline-images]."
   :init
   (setq cider-dynamic-indentation nil
 	cider-font-lock-dynamically nil
-	cider-font-lock-reader-conditionals nil)
+	cider-font-lock-reader-conditionals nil
+	cider-connection-message-fn nil)
   (setq cider-clojure-cli-global-options "")
   :config
   (evil-define-key '(normal visual) cider-repl-mode-map
     (kbd "SPC,") 'evil-switch-to-windows-last-buffer))
-
-;; (defun ox/counsel-rg-change-dir (arg)
-;;   (let ((current-prefix-arg '(4)))
-;;     (counsel-rg ivy-text nil "")))
-
-;; (with-eval-after-load 'counsel
-;;   (setq counsel-rg-base-command "rg -M 240 --with-filename --no-heading --line-number --color never %s || true"))
-
-;; (with-eval-after-load 'ivy
-;;   (with-eval-after-load 'counsel
-;;     (ivy-add-actions
-;;      'counsel-rg
-;;      '(("r" ox/counsel-rg-change-dir "change root directory")))))
 
 (use-package avy
   :ensure t
@@ -1241,7 +1098,7 @@ or \\[markdown-toggle-inline-images]."
   (evil-define-key nil evil-normal-state-map
     "s" 'avy-goto-char-2))
 
-(use-package devdocs)
+(use-package devdocs :defer t)
 
 (when (file-exists-p "~/projects/clojuredocs.el")
   (use-package clojuredocs
@@ -1261,15 +1118,15 @@ or \\[markdown-toggle-inline-images]."
         ("S" "Difftastic show" difftastic-magit-show)])))
 
 
-(use-package harpoon)
+(use-package harpoon :defer t)
 
-(use-package haskell-mode)
+(use-package haskell-mode :defer t)
 
-(use-package zig-mode)
+(use-package zig-mode :defer t)
 
-(use-package terraform-mode)
+(use-package terraform-mode :defer t)
 
-(use-package rust-mode)
+(use-package rust-mode :defer t)
 
 (use-package go-ts-mode
   :ensure nil
@@ -1337,35 +1194,9 @@ or \\[markdown-toggle-inline-images]."
       (unless (treesit-language-available-p (car grammar))
         (treesit-install-language-grammar (car grammar)))))
 
-  ;; Optional, but recommended. Tree-sitter enabled major modes are
-  ;; distinct from their ordinary counterparts.
-  ;;
-  ;; You can remap major modes with `major-mode-remap-alist'. Note
-  ;; that this does *not* extend to hooks! Make sure you migrate them
-  ;; also
-  ;; (dolist (mapping
-  ;;          '((python-mode . python-ts-mode)
-  ;;            (css-mode . css-ts-mode)
-  ;;            (typescript-mode . typescript-ts-mode)
-  ;;            (js-mode . typescript-ts-mode)
-  ;;            (js2-mode . typescript-ts-mode)
-  ;;            (c-mode . c-ts-mode)
-  ;;            (c++-mode . c++-ts-mode)
-  ;;            (c-or-c++-mode . c-or-c++-ts-mode)
-  ;;            (bash-mode . bash-ts-mode)
-  ;;            (css-mode . css-ts-mode)
-  ;;            (json-mode . json-ts-mode)
-  ;;            (js-json-mode . json-ts-mode)
-  ;;            (sh-mode . bash-ts-mode)
-  ;;            (sh-base-mode . bash-ts-mode)))
-  ;;   (add-to-list 'major-mode-remap-alist mapping))
   :config
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (os/setup-install-grammars))
-
-;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . typescript-ts-mode))
 
 
 (defun ox/lsp-get-signature ()
@@ -1467,38 +1298,6 @@ mismatched parens are changed based on the left one."
   (interactive)
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
-
-;; (use-package evil-swap-keys
-;;   :after (evil)
-;;   :config
-;;   (evil-swap-keys-add-pair "9" "(")
-;;   (evil-swap-keys-add-pair "0" ")"))
-
-;; I use parens so much that it makes sense to make them easier to type
-;; (general-define-key
-;;  :states 'insert
-;;  "9" 'ox/left-paren-call
-;;  "0" 'ox/right-paren-call
-;;  "(" (lambda () (interactive) (insert "9"))
-;;  ")" (lambda () (interactive) (insert "0")))
-
-;; (evil-define-key 'insert 'global
-;; (kbd "9") 'ox/left-paren-call
-;; (kbd "0") 'ox/right-paren-call
-;; (kbd "(") (lambda () (interactive) (insert "9"))
-;; (kbd ")") (lambda () (interactive) (insert "0"))
-;; )
-
-;; (use-package magit-delta
-;;   :hook (magit-mode . magit-delta-mode))
-
-;; (defun ox/magit-delta-toggle ()
-;;   (interactive)
-;;   (magit-delta-mode
-;;    (if magit-delta-mode
-;;        -1
-;;      1))
-;;   (magit-refresh))
 
 (defun genox/screenshot-from-clipboard ()
   "Save clipboard image to a uniquely named file in ../media/
@@ -1655,26 +1454,12 @@ TARGET-DIR is the directory path selected via file picker."
     (message "Successfully cloned %s to %s" repo-name clone-path)
     clone-path))
 
-;; ;; For some reason, this was being called twice without the guard.
-;; (with-eval-after-load 'magit-diff
-;;   (unless (boundp 'aankh/added-magit-diff-suffixes)
-;;     (transient-append-suffix 'magit-diff '(-1 -1)
-;;       [("l" "Toggle magit-delta" aankh/toggle-magit-delta)
-;;        ;; ("D" "Difftastic Diff (dwim)" th/magit-diff-with-difftastic)
-;;        ;; ("S" "Difftastic Show" th/magit-show-with-difftastic)
-;;        ]))
-;;   (setf aankh/added-magit-diff-suffixes t))
-
-
-(message "[ox] loading tailwind cheatsheet...")
-(load-file (expand-file-name (concat user-emacs-directory "/tailwind_cheatsheet.el")))
-(message "[ox] tailwind cheatsheet loaded")
+;; Load the tailwind cheatsheet on demand instead of at startup.
+(autoload 'tailwind-cheatsheet
+  (expand-file-name "tailwind_cheatsheet.el" user-emacs-directory)
+  "Insert a Tailwind utility/CSS pair via completing-read." t)
 
 (message "[ox] init.el finished loading.")
 
-;; First, install dired-hacks
-;; Add to your init.el and run M-x package-install RET dired-hacks RET
-;; (require 'dired-hacks-utils) ; or whichever dired-hacks modules you want
-
 (provide 'init)
-;;; local.ox.el ends here
+;;; init.el ends here
